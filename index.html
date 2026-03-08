@@ -5,420 +5,612 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>学習トラッカー</title>
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
-
 <style>
-/* 元CSSそのまま */
-:root {
---g50:#f0fdf4; --g100:#dcfce7; --g400:#4ade80;
---g500:#22c55e; --g600:#16a34a; --g700:#15803d; --g800:#166534;
---o100:#fff7ed; --o400:#fb923c; --o500:#f97316;
---s100:#e8f0e9; --s200:#c9d9cb; --s300:#a0b8a3;
---cream:#fafaf7; --gray:#6b7280; --dark:#1a2e1c;
---sh-sm:0 1px 3px rgba(22,101,52,.08);
---sh-md:0 4px 14px rgba(22,101,52,.15);
---r:14px; --rs:8px;
-}
+  :root {
+    --g50:#f0fdf4; --g100:#dcfce7; --g400:#4ade80;
+    --g500:#22c55e; --g600:#16a34a; --g700:#15803d; --g800:#166534;
+    --o100:#fff7ed; --o400:#fb923c; --o500:#f97316;
+    --s100:#e8f0e9; --s200:#c9d9cb; --s300:#a0b8a3;
+    --cream:#fafaf7; --gray:#6b7280; --dark:#1a2e1c;
+    --sh-sm:0 1px 3px rgba(22,101,52,.08);
+    --sh-md:0 4px 14px rgba(22,101,52,.15);
+    --r:14px; --rs:8px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;}
 
-*{box-sizing:border-box;margin:0;padding:0;}
+  /* ── header ── */
+  .hdr{background:var(--g800);color:#fff;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(22,101,52,.3);}
+  .hdr h1{font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;}
+  .hdr-btns{display:flex;gap:6px;}
+  .hbtn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:var(--rs);padding:6px 11px;font-size:.76rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;white-space:nowrap;transition:background .18s;}
+  .hbtn:hover{background:rgba(255,255,255,.26);}
 
-body{
-font-family:'Zen Kaku Gothic New',sans-serif;
-background:var(--cream);
-color:var(--dark);
-}
+  /* ── tabs ── */
+  .tabs{background:var(--g800);padding:0 10px;display:flex;align-items:flex-end;gap:3px;overflow-x:auto;scrollbar-width:none;}
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:9px 9px 0 0;padding:7px 13px;font-size:.8rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:all .18s;}
+  .tab.active{background:var(--cream);color:var(--g800);font-weight:700;}
+  .tab:hover:not(.active){background:rgba(255,255,255,.2);color:#fff;}
+  .tab-x{font-size:.65rem;opacity:.5;padding:2px 4px;border-radius:3px;line-height:1;}
+  .tab-x:hover{opacity:1;background:rgba(0,0,0,.2);}
+  .tab-add{background:none;border:2px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.55);border-radius:8px 8px 0 0;padding:6px 12px;font-size:1rem;cursor:pointer;transition:all .18s;}
+  .tab-add:hover{border-color:#fff;color:#fff;}
 
-.hdr{
-background:var(--g800);
-color:#fff;
-padding:13px 18px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
+  /* ── main ── */
+  .main{padding:18px 15px 60px;max-width:780px;margin:0 auto;}
 
-.tabs{
-background:var(--g800);
-padding:0 10px;
-display:flex;
-gap:4px;
-overflow-x:auto;
-}
+  /* ── top bar ── */
+  .top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .tab-title{font-size:1.05rem;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:8px;}
+  .bdg{background:var(--g100);color:var(--g700);border-radius:20px;padding:2px 9px;font-size:.73rem;font-weight:700;}
+  .cfg-btn{background:#fff;border:2px solid var(--s200);color:var(--gray);border-radius:var(--rs);padding:5px 12px;font-size:.78rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;transition:all .18s;}
+  .cfg-btn:hover{border-color:var(--g400);color:var(--g700);}
 
-.tab{
-background:rgba(255,255,255,.12);
-border:none;
-color:#fff;
-border-radius:9px 9px 0 0;
-padding:7px 13px;
-cursor:pointer;
-}
+  /* ── progress ── */
+  .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+  .prog-wrap{flex:1;background:var(--s100);border-radius:6px;height:7px;overflow:hidden;}
+  .prog-bar{background:linear-gradient(90deg,var(--g500),var(--g400));height:100%;border-radius:6px;transition:width .4s cubic-bezier(.34,1.56,.64,1);}
+  .prog-txt{font-size:.75rem;color:var(--gray);white-space:nowrap;min-width:60px;text-align:right;}
 
-.tab.active{
-background:var(--cream);
-color:var(--g800);
-font-weight:700;
-}
+  /* ── grid ── */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:7px;margin-bottom:16px;}
 
-.main{
-padding:18px;
-max-width:780px;
-margin:auto;
-}
+  /* ── tile ── */
+  .tile{
+    aspect-ratio:1;border-radius:var(--rs);
+    background:#fff;border:2px solid var(--s200);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+    cursor:pointer;user-select:none;
+    transition:all .17s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:var(--sh-sm);
+    position:relative;padding:5px 3px;
+  }
+  .tile:hover{transform:scale(1.06);box-shadow:var(--sh-md);}
+  .tile:active{transform:scale(.94);}
 
-.prog-row{
-display:flex;
-align-items:center;
-gap:10px;
-margin-bottom:14px;
-}
+  /* 未チェック */
+  .tile .t-num{font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;color:var(--g700);line-height:1;}
+  .tile .t-name{font-size:.55rem;color:var(--gray);max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+  .tile .t-streak{font-size:.58rem;font-weight:700;color:var(--s300);line-height:1;}
 
-.prog-wrap{
-flex:1;
-background:var(--s100);
-border-radius:6px;
-height:7px;
-overflow:hidden;
-}
+  /* 今日チェック済み → 緑 */
+  .tile.done-today{background:var(--g500);border-color:var(--g600);box-shadow:0 4px 12px rgba(34,197,94,.35);}
+  .tile.done-today .t-num{color:#fff;}
+  .tile.done-today .t-name{color:rgba(255,255,255,.85);}
+  .tile.done-today .t-streak{color:rgba(255,255,255,.9);}
 
-.prog-bar{
-background:linear-gradient(90deg,var(--g500),var(--g400));
-height:100%;
-}
+  /* 連続中だが今日未チェック → オレンジ枠 */
+  .tile.streak-only{border-color:var(--o400);background:var(--o100);}
+  .tile.streak-only .t-num{color:#c2410c;}
+  .tile.streak-only .t-name{color:#9a3412;}
+  .tile.streak-only .t-streak{color:var(--o500);}
 
-.prog-txt{
-font-size:.75rem;
-color:var(--gray);
-}
+  /* チェックマーク */
+  .tile .t-check{position:absolute;top:3px;right:5px;font-size:.6rem;color:rgba(255,255,255,.8);display:none;}
+  .tile.done-today .t-check{display:block;}
 
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(72px,1fr));
-gap:7px;
-margin-bottom:16px;
-}
+  /* ── actions ── */
+  .actions{display:flex;gap:8px;flex-wrap:wrap;}
+  .btn{border:none;border-radius:var(--rs);padding:8px 14px;font-size:.82rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;transition:all .18s;font-weight:500;}
+  .btn-danger{background:#fef2f2;border:2px solid #fecaca;color:#ef4444;}
+  .btn-danger:hover{background:#fee2e2;}
 
-.tile{
-aspect-ratio:1;
-border-radius:var(--rs);
-background:#fff;
-border:2px solid var(--s200);
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-position:relative;
-}
+  /* ── empty ── */
+  .empty{text-align:center;padding:60px 20px;color:var(--s300);}
+  .empty .ico{font-size:3rem;margin-bottom:12px;}
 
-.tile.done-today{
-background:var(--g500);
-border-color:var(--g600);
-}
+  /* ── modal ── */
+  .overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
+  .modal{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:mIn .24s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+  @keyframes mIn{from{opacity:0;transform:scale(.85) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
+  .modal h3{font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:16px;}
+  .mrow{margin-bottom:12px;}
+  .mrow label{display:block;font-size:.8rem;color:var(--gray);margin-bottom:5px;font-weight:500;}
+  .mactions{display:flex;gap:8px;justify-content:flex-end;margin-top:18px;}
+  .inp{border:2px solid var(--s200);border-radius:var(--rs);padding:8px 12px;font-size:.9rem;font-family:'Zen Kaku Gothic New',sans-serif;outline:none;background:#fff;width:100%;transition:border-color .2s;}
+  .inp:focus{border-color:var(--g400);}
+  .mbtn{border:none;border-radius:var(--rs);padding:8px 16px;font-size:.84rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;font-weight:600;}
+  .mbtn-cancel{background:var(--s100);color:var(--gray);}
+  .mbtn-ok{background:var(--g600);color:#fff;}
+  .mbtn-ok:hover{background:var(--g700);}
 
-.tile .t-num{
-font-family:'Nunito';
-font-weight:800;
-font-size:1.1rem;
-}
+  /* ── detail (long press) ── */
+  .det-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
+  .det-box{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:370px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:mIn .22s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
+  .det-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+  .det-head h4{font-size:1rem;font-weight:700;}
+  .det-close{background:var(--s100);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:.95rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .det-close:hover{background:var(--s200);}
+  .streak-big{text-align:center;padding:12px 0 16px;font-family:'Nunito',sans-serif;font-size:2.6rem;font-weight:800;color:var(--o500);line-height:1;}
+  .streak-big span{display:block;font-size:.8rem;color:var(--gray);font-weight:500;font-family:'Zen Kaku Gothic New',sans-serif;margin-top:4px;}
+  /* calendar */
+  .cal-mo{margin-bottom:14px;}
+  .cal-mo-label{font-size:.75rem;font-weight:700;color:var(--gray);margin-bottom:5px;}
+  .cal-wh{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+  .cal-dl{font-size:.6rem;color:var(--s300);text-align:center;}
+  .cal-wr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+  .cal-c{aspect-ratio:1;border-radius:4px;background:var(--s100);display:flex;align-items:center;justify-content:center;font-size:.66rem;font-family:'Nunito',sans-serif;font-weight:700;color:var(--gray);cursor:pointer;transition:all .14s;}
+  .cal-c:hover{background:var(--s200);}
+  .cal-c.on{background:var(--g500);color:#fff;}
+  .cal-c.today{outline:2px solid var(--g600);outline-offset:1px;}
+  .cal-c.emp{background:none;pointer-events:none;}
+  .det-toggle{width:100%;border:none;border-radius:var(--rs);padding:11px;font-size:.88rem;font-weight:700;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;margin-top:12px;transition:all .18s;}
+  .det-toggle.is-done{background:var(--g500);color:#fff;}
+  .det-toggle.is-done:hover{background:var(--g600);}
+  .det-toggle.not-done{background:var(--s100);color:var(--gray);}
+  .det-toggle.not-done:hover{background:var(--s200);}
 
-.tile .t-name{
-font-size:.55rem;
-color:var(--gray);
-}
+  /* ── toast ── */
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--g800);color:#fff;padding:9px 18px;border-radius:30px;font-size:.83rem;font-weight:600;z-index:500;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 6px 20px rgba(22,101,52,.3);}
+  .toast.show{transform:translateX(-50%) translateY(0);}
 
-.tile .t-streak{
-font-size:.58rem;
-font-weight:700;
-}
-
-.actions{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-}
-
-.btn{
-border:none;
-border-radius:var(--rs);
-padding:8px 14px;
-cursor:pointer;
-}
-
-.btn-danger{
-background:#fef2f2;
-border:2px solid #fecaca;
-color:#ef4444;
-}
-
+  @media(max-width:460px){
+    .grid{grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px;}
+    .tile .t-num{font-size:.95rem;}
+  }
 </style>
 </head>
-
 <body>
 
 <div class="hdr">
-<h1>📚 学習トラッカー</h1>
+  <h1>📚 学習トラッカー</h1>
+  <div class="hdr-btns">
+    <button class="hbtn" id="soundBtn" onclick="toggleSound()">🔔</button>
+    <button class="hbtn" onclick="exportCSV()">📊 CSV</button>
+    <button class="hbtn" onclick="exportData()">⬇ JSON</button>
+    <label class="hbtn" style="cursor:pointer">⬆ 読み込み<input type="file" accept=".json" onchange="importData(event)" style="display:none"></label>
+  </div>
 </div>
 
-<div class="tabs" id="tabsEl"></div>
+<div class="tabs" id="tabsEl">
+  <button class="tab-add" onclick="openAddTab()">＋</button>
+</div>
 
 <div class="main" id="mainEl"></div>
 
+<!-- tab modal -->
+<div class="overlay" id="tabOverlay" style="display:none" onclick="closeTabModal(event)">
+  <div class="modal" id="tabModal"></div>
+</div>
+
+<!-- detail (long press) -->
+<div class="det-overlay" id="detOverlay" style="display:none" onclick="closeDet(event)">
+  <div class="det-box" id="detBox"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
+// ── audio ──────────────────────────────────────────────
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+let soundEnabled = localStorage.getItem('sound') !== 'off';
 
-let state={tabs:[],activeId:null}
+document.addEventListener('click', () => audioCtx.resume(), { once: true });
 
-function save(){
-localStorage.setItem("tracker-v4",JSON.stringify(state))
+function playTapSound(){
+  if(!soundEnabled) return;
+  const ctx = audioCtx;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = 'triangle';
+  osc.frequency.setValueAtTime(660, ctx.currentTime);
+  osc.frequency.linearRampToValueAtTime(880, ctx.currentTime + 0.08);
+  gain.gain.setValueAtTime(0.18, ctx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + 0.2);
 }
 
+function toggleSound(){
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('sound', soundEnabled ? 'on' : 'off');
+  document.getElementById('soundBtn').textContent = soundEnabled ? '🔔' : '🔕';
+  if(soundEnabled) playTapSound();
+}
+
+// ── state ──────────────────────────────────────────────
+// tab: { id, name, count, labels:{num:str}, records:{num:{date:true}} }
+let state = { tabs:[], activeId:null };
+
+function save(){ localStorage.setItem('tracker-v3', JSON.stringify(state)); }
 function load(){
-const d=localStorage.getItem("tracker-v4")
-if(d) state=JSON.parse(d)
+  try{ const r=localStorage.getItem('tracker-v3'); if(r) state=JSON.parse(r); }catch(e){}
+}
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
+function today(){ return new Date().toISOString().slice(0,10); }
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg){
+  const el=document.getElementById('toast');
+  el.textContent=msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),2100);
 }
 
-function today(){
-return new Date().toISOString().slice(0,10)
+// ── streak calc ────────────────────────────────────────
+// 連続日数: 今日 or 昨日から遡って何日連続か
+function streak(records, todayStr){
+  // records = { "2024-01-01": true, ... }
+  let count=0;
+  let d=new Date(todayStr);
+  // 今日チェックしてなければ昨日から数える
+  if(!records[todayStr]){ d.setDate(d.getDate()-1); }
+  while(true){
+    const ds=d.toISOString().slice(0,10);
+    if(records[ds]){ count++; d.setDate(d.getDate()-1); }
+    else break;
+  }
+  return count;
 }
 
-function getActive(){
-return state.tabs.find(t=>t.id===state.activeId)
+// ── tab management ─────────────────────────────────────
+function getActive(){ return state.tabs.find(t=>t.id===state.activeId); }
+
+function addTab(name, count){
+  const tab={id:uid(), name, count:count||35, labels:{}, records:{}};
+  state.tabs.push(tab);
+  state.activeId=tab.id;
+  save(); render();
+}
+function removeTab(id){
+  if(!confirm('このタブを削除しますか？')) return;
+  state.tabs=state.tabs.filter(t=>t.id!==id);
+  if(state.activeId===id) state.activeId=state.tabs[0]?.id||null;
+  save(); render();
 }
 
-function streak(rec,td){
-
-let c=0
-let d=new Date(td)
-
-if(!rec[td]) d.setDate(d.getDate()-1)
-
-while(true){
-
-const ds=d.toISOString().slice(0,10)
-
-if(rec[ds]){
-c++
-d.setDate(d.getDate()-1)
-}else{
-break
-}
-
-}
-
-return c
-
-}
+// ── render ─────────────────────────────────────────────
+function render(){ renderTabs(); renderMain(); }
 
 function renderTabs(){
-
-const el=document.getElementById("tabsEl")
-
-el.innerHTML=""
-
-state.tabs.forEach(t=>{
-
-const b=document.createElement("button")
-
-b.className="tab"+(t.id===state.activeId?" active":"")
-
-b.textContent=t.name
-
-b.onclick=()=>{
-state.activeId=t.id
-render()
-}
-
-el.appendChild(b)
-
-})
-
+  const el=document.getElementById('tabsEl');
+  el.querySelectorAll('.tab').forEach(e=>e.remove());
+  const addBtn=el.querySelector('.tab-add');
+  state.tabs.forEach(tab=>{
+    const btn=document.createElement('button');
+    btn.className='tab'+(tab.id===state.activeId?' active':'');
+    btn.innerHTML=`<span>${esc(tab.name)}</span><span class="tab-x" onclick="event.stopPropagation();removeTab('${tab.id}')">✕</span>`;
+    btn.onclick=()=>{ state.activeId=tab.id; save(); render(); };
+    el.insertBefore(btn,addBtn);
+  });
 }
 
 function renderMain(){
+  const el=document.getElementById('mainEl');
+  const tab=getActive();
+  if(!tab){
+    el.innerHTML=`<div class="empty"><div class="ico">📂</div><p>「＋」でタブを追加してください</p></div>`;
+    return;
+  }
 
-const tab=getActive()
+  const td=today();
+  const total=tab.count;
+  let doneToday=0, hasRecord=0;
 
-if(!tab) return
+  let tilesHtml='';
+  for(let i=1;i<=total;i++){
+    const rec=tab.records[i]||{};
+    const isDoneToday=!!rec[td];
+    const s=streak(rec,td);
+    const label=tab.labels[i]||'';
+    if(isDoneToday) doneToday++;
+    if(Object.keys(rec).length>0) hasRecord++;
 
-const td=today()
+    // tile class
+    let cls='tile';
+    if(isDoneToday) cls+=' done-today';
+    else if(s>0) cls+=' streak-only';
 
-const total=tab.count
+    // streak text
+    let streakTxt='';
+    if(isDoneToday && s>0) streakTxt=`🔥${s}日`;
+    else if(!isDoneToday && s>0) streakTxt=`⚡${s}日`;
 
-let doneToday=0
+    tilesHtml+=`
+      <div class="${cls}"
+        data-tab="${tab.id}" data-num="${i}"
+        onclick="toggleTile('${tab.id}',${i})"
+        title="${label||i+'番'}（長押しで記録詳細）">
+        <span class="t-check">✓</span>
+        <span class="t-num">${i}</span>
+        ${label?`<span class="t-name">${esc(label)}</span>`:''}
+        <span class="t-streak">${streakTxt}</span>
+      </div>`;
+  }
 
-let tiles=[]
+  const pct=total?Math.round(doneToday/total*100):0;
 
-for(let i=1;i<=total;i++){
-
-const rec=tab.records[i]||{}
-const done=!!rec[td]
-
-if(done) doneToday++
-
-tiles.push({
-num:i,
-rec:rec,
-done:done,
-label:tab.labels[i]||"",
-streak:streak(rec,td)
-})
-
+  el.innerHTML=`
+    <div class="top-bar">
+      <span class="tab-title">${esc(tab.name)}<span class="bdg">今日 ${doneToday}/${total}</span></span>
+      <button class="cfg-btn" onclick="openEditTab('${tab.id}')">⚙ 設定</button>
+    </div>
+    <div class="prog-row">
+      <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
+      <span class="prog-txt">今日 ${pct}%</span>
+    </div>
+    <div class="hint">タップ→今日チェック　長押し→記録詳細　ダブルタップ→名前編集</div>
+    <div class="grid">${tilesHtml}</div>
+    <div class="actions">
+      <button class="btn" style="background:var(--g100);color:var(--g700);border:2px solid var(--g400);" onclick="checkAll('${tab.id}')">✅ 全員チェック</button>
+      <button class="btn btn-danger" onclick="resetToday('${tab.id}')">🔄 今日分リセット</button>
+      <button class="btn btn-danger" onclick="resetAll('${tab.id}')">🗑 全記録リセット</button>
+    </div>`;
 }
 
-tiles.sort((a,b)=>{
-
-if(a.done===b.done) return a.num-b.num
-
-return a.done?1:-1
-
-})
-
-let tilesHtml=""
-
-tiles.forEach(t=>{
-
-let cls="tile"
-
-if(t.done) cls+=" done-today"
-
-tilesHtml+=`
-<div class="${cls}"
-onclick="toggle(${t.num})">
-
-<span class="t-num">${t.num}</span>
-
-${t.label?`<span class="t-name">${t.label}</span>`:""}
-
-<span class="t-streak">${t.streak?`🔥${t.streak}`:""}</span>
-
-</div>
-`
-
-})
-
-const pct=total?Math.round(doneToday/total*100):0
-const remain=total-doneToday
-
-document.getElementById("mainEl").innerHTML=`
-
-<div class="prog-row">
-<div class="prog-wrap">
-<div class="prog-bar" style="width:${pct}%"></div>
-</div>
-<span class="prog-txt">残り ${remain}人</span>
-</div>
-
-<div class="grid">
-${tilesHtml}
-</div>
-
-<div class="actions">
-
-<button class="btn" onclick="checkAll()">全員チェック</button>
-
-<button class="btn btn-danger" onclick="resetToday()">今日リセット</button>
-
-<button class="btn btn-danger" onclick="resetAll()">全リセット</button>
-
-</div>
-
-`
-
+// ── tile toggle ────────────────────────────────────────
+function toggleTile(tabId, num){
+  const tab=state.tabs.find(t=>t.id===tabId);
+  if(!tab.records[num]) tab.records[num]={};
+  const td=today();
+  if(tab.records[num][td]) delete tab.records[num][td];
+  else { tab.records[num][td]=true; playTapSound(); }
+  save(); renderMain();
 }
 
-function toggle(num){
+// ── label edit (double tap) ────────────────────────────
+// dblclick は renderMain 後に付け直す
+document.addEventListener('dblclick', e=>{
+  const tile=e.target.closest('.tile');
+  if(!tile) return;
+  const tabId=tile.dataset.tab, num=parseInt(tile.dataset.num);
+  if(!tabId||!num) return;
+  const tab=state.tabs.find(t=>t.id===tabId);
+  const cur=tab.labels[num]||'';
+  const val=prompt(`${num}番の名前を入力（空白で削除）:`,cur);
+  if(val===null) return;
+  if(val.trim()==='') delete tab.labels[num]; else tab.labels[num]=val.trim();
+  save(); renderMain();
+});
 
-const tab=getActive()
-const td=today()
-
-if(!tab.records[num]) tab.records[num]={}
-
-if(tab.records[num][td])
-delete tab.records[num][td]
-else
-tab.records[num][td]=true
-
-save()
-renderMain()
-
+// ── reset ──────────────────────────────────────────────
+function checkAll(tabId){
+  if(!confirm('全員を今日の「完了」にしますか？')) return;
+  const tab = state.tabs.find(t => t.id === tabId);
+  const td = today();
+  for(let i = 1; i <= tab.count; i++){
+    if(!tab.records[i]) tab.records[i] = {};
+    tab.records[i][td] = true;
+  }
+  save(); renderMain(); toast('全員を完了にしました');
 }
 
-function checkAll(){
-
-const tab=getActive()
-const td=today()
-
-for(let i=1;i<=tab.count;i++){
-
-if(!tab.records[i]) tab.records[i]={}
-
-tab.records[i][td]=true
-
+function resetToday(tabId){
+  if(!confirm('今日分をリセットしますか？')) return;
+  const tab=state.tabs.find(t=>t.id===tabId);
+  const td=today();
+  Object.values(tab.records).forEach(rec=>delete rec[td]);
+  save(); renderMain(); toast('今日分をリセットしました');
+}
+function resetAll(tabId){
+  if(!confirm('全記録を削除しますか？元に戻せません。')) return;
+  const tab=state.tabs.find(t=>t.id===tabId);
+  tab.records={};
+  save(); renderMain(); toast('全記録をリセットしました');
 }
 
-save()
-renderMain()
+// ── long press → detail ────────────────────────────────
+let _lpTimer=null, _lpMoved=false;
+const LP=480;
 
+document.addEventListener('touchstart', e=>{
+  const tile=e.target.closest('.tile');
+  if(!tile) return;
+  _lpMoved=false;
+  _lpTimer=setTimeout(()=>{ if(!_lpMoved) openDet(tile.dataset.tab, parseInt(tile.dataset.num)); }, LP);
+},{passive:true});
+document.addEventListener('touchmove', ()=>{ _lpMoved=true; clearTimeout(_lpTimer); },{passive:true});
+document.addEventListener('touchend', ()=>clearTimeout(_lpTimer));
+document.addEventListener('touchcancel', ()=>clearTimeout(_lpTimer));
+
+document.addEventListener('mousedown', e=>{
+  const tile=e.target.closest('.tile');
+  if(!tile||e.button!==0) return;
+  _lpMoved=false;
+  _lpTimer=setTimeout(()=>{ if(!_lpMoved) openDet(tile.dataset.tab, parseInt(tile.dataset.num)); }, LP);
+});
+document.addEventListener('mousemove', ()=>{ _lpMoved=true; clearTimeout(_lpTimer); });
+document.addEventListener('mouseup', ()=>clearTimeout(_lpTimer));
+
+// ── detail popup ───────────────────────────────────────
+let _dTabId=null, _dNum=null;
+
+function openDet(tabId, num){
+  _dTabId=tabId; _dNum=num;
+  renderDet();
+  document.getElementById('detOverlay').style.display='flex';
+}
+function closeDet(e){
+  if(e&&e.target!==document.getElementById('detOverlay')) return;
+  document.getElementById('detOverlay').style.display='none';
+  _dTabId=null; _dNum=null;
 }
 
-function resetToday(){
+function renderDet(){
+  const tab=state.tabs.find(t=>t.id===_dTabId);
+  const num=_dNum;
+  const rec=tab.records[num]||{};
+  const td=today();
+  const s=streak(rec,td);
+  const isDone=!!rec[td];
+  const label=tab.labels[num]||`${num}番`;
 
-const tab=getActive()
-const td=today()
+  // 2ヶ月カレンダー
+  const now=new Date();
+  let calHtml='';
+  for(let mo=1;mo>=0;mo--){
+    const base=new Date(now.getFullYear(),now.getMonth()-mo,1);
+    const yr=base.getFullYear(), mn=base.getMonth();
+    const firstDow=base.getDay();
+    const daysInMo=new Date(yr,mn+1,0).getDate();
+    const moLabel=`${yr}年${mn+1}月`;
+    let cells='';
+    for(let e=0;e<firstDow;e++) cells+=`<div class="cal-c emp"></div>`;
+    for(let d=1;d<=daysInMo;d++){
+      const ds=`${yr}-${String(mn+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+      const on=!!rec[ds], isT=ds===td;
+      cells+=`<div class="cal-c${on?' on':''}${isT?' today':''}" onclick="toggleDetDay('${ds}')">${d}</div>`;
+    }
+    const rem=(firstDow+daysInMo)%7; if(rem>0) for(let e=0;e<7-rem;e++) cells+=`<div class="cal-c emp"></div>`;
+    calHtml+=`<div class="cal-mo">
+      <div class="cal-mo-label">${moLabel}</div>
+      <div class="cal-wh">${['日','月','火','水','木','金','土'].map(w=>`<div class="cal-dl">${w}</div>`).join('')}</div>
+      <div class="cal-wr">${cells}</div>
+    </div>`;
+  }
 
-Object.values(tab.records).forEach(r=>delete r[td])
-
-save()
-renderMain()
-
+  document.getElementById('detBox').innerHTML=`
+    <div class="det-head">
+      <h4>📌 ${esc(tab.name)} — ${esc(label)}</h4>
+      <button class="det-close" onclick="closeDet()">✕</button>
+    </div>
+    <div class="streak-big">🔥 ${s}<span>${s}日連続達成中</span></div>
+    ${calHtml}
+    <button class="det-toggle ${isDone?'is-done':'not-done'}" onclick="toggleDetToday()">
+      ${isDone?'✅ 今日チェック済み（取り消す）':'○ 今日まだ（タップで達成）'}
+    </button>`;
 }
 
-function resetAll(){
-
-const tab=getActive()
-
-tab.records={}
-
-save()
-renderMain()
-
+function toggleDetDay(ds){
+  const tab=state.tabs.find(t=>t.id===_dTabId);
+  if(!tab.records[_dNum]) tab.records[_dNum]={};
+  const rec=tab.records[_dNum];
+  if(rec[ds]) delete rec[ds]; else rec[ds]=true;
+  save(); renderDet(); renderMain();
+}
+function toggleDetToday(){
+  toggleDetDay(today());
 }
 
-function render(){
-
-renderTabs()
-renderMain()
-
+// ── tab modals ─────────────────────────────────────────
+function openAddTab(){
+  document.getElementById('tabModal').innerHTML=`
+    <h3>📂 新しいタブを追加</h3>
+    <div class="mrow"><label>タブの名前（例：宿題、計算ドリル、音読）</label>
+      <input class="inp" id="tn" placeholder="タブ名を入力" onkeydown="if(event.key==='Enter')confirmAdd()"></div>
+    <div class="mrow"><label>番号の上限（出席番号の人数など）</label>
+      <input class="inp" id="tc" type="number" min="1" max="300" value="35"></div>
+    <div class="mactions">
+      <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
+      <button class="mbtn mbtn-ok" onclick="confirmAdd()">追加</button>
+    </div>`;
+  document.getElementById('tabOverlay').style.display='flex';
+  setTimeout(()=>document.getElementById('tn')?.focus(),80);
+}
+function confirmAdd(){
+  const name=document.getElementById('tn').value.trim()||'新しいタブ';
+  const count=parseInt(document.getElementById('tc').value)||35;
+  addTab(name,count);
+  closeTabModal();
+  toast(`「${name}」タブを追加しました`);
 }
 
-load()
+function openEditTab(tabId){
+  const tab=state.tabs.find(t=>t.id===tabId);
+  document.getElementById('tabModal').innerHTML=`
+    <h3>⚙ タブの設定</h3>
+    <div class="mrow"><label>タブ名</label>
+      <input class="inp" id="en" value="${esc(tab.name)}"></div>
+    <div class="mrow"><label>番号の上限</label>
+      <input class="inp" id="ec" type="number" min="1" max="300" value="${tab.count}"></div>
+    <div class="mactions">
+      <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
+      <button class="mbtn mbtn-ok" onclick="confirmEdit('${tabId}')">保存</button>
+    </div>`;
+  document.getElementById('tabOverlay').style.display='flex';
+}
+function confirmEdit(tabId){
+  const tab=state.tabs.find(t=>t.id===tabId);
+  tab.name=document.getElementById('en').value.trim()||tab.name;
+  tab.count=parseInt(document.getElementById('ec').value)||tab.count;
+  save(); closeTabModal(); render(); toast('設定を保存しました');
+}
 
+function closeTabModal(e){
+  if(e&&e.target!==document.getElementById('tabOverlay')) return;
+  document.getElementById('tabOverlay').style.display='none';
+}
+
+// ── import / export ────────────────────────────────────
+function exportCSV(){
+  const tab = getActive();
+  if(!tab) return alert('書き出すデータがありません');
+
+  const dateSet = new Set();
+  for(let i=1; i<=tab.count; i++){
+    if(tab.records[i]) Object.keys(tab.records[i]).forEach(d => dateSet.add(d));
+  }
+  const dates = Array.from(dateSet).sort();
+
+  const header = ['番号', '名前', '累計達成(日)', '現在の連続(日)', ...dates];
+  let csvContent = header.join(',') + '\n';
+
+  const td = today();
+  for(let i=1; i<=tab.count; i++){
+    const row = [i];
+    let name = tab.labels[i] || '';
+    if(name.includes(',')) name = `"${name}"`;
+    row.push(name);
+    const rec = tab.records[i] || {};
+    row.push(Object.keys(rec).length);
+    row.push(streak(rec, td));
+    dates.forEach(d => row.push(rec[d] ? '○' : ''));
+    csvContent += row.join(',') + '\n';
+  }
+
+  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
+  const blob = new Blob([bom, csvContent], {type: 'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${tab.name}-${td}.csv`;
+  a.click();
+  toast('CSVを書き出しました');
+}
+
+
+function exportData(){
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
+  a.download=`tracker-${today()}.json`; a.click();
+  toast('データを書き出しました');
+}
+function importData(e){
+  const file=e.target.files[0]; if(!file) return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(!d.tabs) throw 0;
+      if(!confirm('現在のデータを上書きしますか？')) return;
+      state=d; if(state.tabs.length) state.activeId=state.tabs[0].id;
+      save(); render(); toast('データを読み込みました');
+    }catch{ alert('ファイルの形式が正しくありません'); }
+  };
+  r.readAsText(file); e.target.value='';
+}
+
+// ── init ───────────────────────────────────────────────
+load();
+document.getElementById('soundBtn').textContent = soundEnabled ? '🔔' : '🔕';
 if(state.tabs.length===0){
+  // デモデータ
+  addTab('宿題',35);
+  const hw=state.tabs[0];
+  const td=today();
+  const yd=new Date(); yd.setDate(yd.getDate()-1); const ys=yd.toISOString().slice(0,10);
+  const yd2=new Date(); yd2.setDate(yd2.getDate()-2); const ys2=yd2.toISOString().slice(0,10);
+  // 数人分デモ記録
+  [1,2,3,5,7,8].forEach(n=>{ hw.records[n]={}; hw.records[n][td]=true; });
+  [1,2,3,5].forEach(n=>{ hw.records[n][ys]=true; hw.records[n][ys2]=true; });
+  hw.labels[1]='田中'; hw.labels[2]='鈴木'; hw.labels[3]='佐藤';
 
-state.tabs.push({
-id:"1",
-name:"宿題",
-count:35,
-labels:{},
-records:{}
-})
-
-state.tabs.push({
-id:"2",
-name:"音読",
-count:35,
-labels:{},
-records:{}
-})
-
-state.activeId="1"
-
-save()
-
+  addTab('計算ドリル',35);
+  addTab('音読',35);
+  state.activeId=state.tabs[0].id;
+  save();
 }
-
-render()
-
+render();
 </script>
-
 </body>
 </html>
