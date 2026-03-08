@@ -4,83 +4,150 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>学習トラッカー</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
 
 <style>
+/* 元CSSそのまま */
+:root {
+--g50:#f0fdf4; --g100:#dcfce7; --g400:#4ade80;
+--g500:#22c55e; --g600:#16a34a; --g700:#15803d; --g800:#166534;
+--o100:#fff7ed; --o400:#fb923c; --o500:#f97316;
+--s100:#e8f0e9; --s200:#c9d9cb; --s300:#a0b8a3;
+--cream:#fafaf7; --gray:#6b7280; --dark:#1a2e1c;
+--sh-sm:0 1px 3px rgba(22,101,52,.08);
+--sh-md:0 4px 14px rgba(22,101,52,.15);
+--r:14px; --rs:8px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
 
 body{
 font-family:'Zen Kaku Gothic New',sans-serif;
-margin:0;
-background:#fafaf7;
+background:var(--cream);
+color:var(--dark);
 }
 
-header{
-background:#166534;
-color:white;
-padding:12px 16px;
+.hdr{
+background:var(--g800);
+color:#fff;
+padding:13px 18px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
 
-button{
-border:none;
-border-radius:8px;
-padding:6px 10px;
-cursor:pointer;
-}
-
 .tabs{
+background:var(--g800);
+padding:0 10px;
 display:flex;
 gap:4px;
-padding:6px;
-background:#166534;
+overflow-x:auto;
 }
 
 .tab{
-background:#1f7a45;
-color:white;
+background:rgba(255,255,255,.12);
+border:none;
+color:#fff;
+border-radius:9px 9px 0 0;
+padding:7px 13px;
+cursor:pointer;
 }
 
 .tab.active{
-background:white;
-color:black;
+background:var(--cream);
+color:var(--g800);
+font-weight:700;
 }
 
-.container{
-padding:12px;
+.main{
+padding:18px;
+max-width:780px;
+margin:auto;
 }
 
-table{
-width:100%;
-border-collapse:collapse;
+.prog-row{
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:14px;
 }
 
-td,th{
-border:1px solid #ddd;
-padding:6px;
-text-align:center;
+.prog-wrap{
+flex:1;
+background:var(--s100);
+border-radius:6px;
+height:7px;
+overflow:hidden;
 }
 
-tr.dragging{
-opacity:.5;
+.prog-bar{
+background:linear-gradient(90deg,var(--g500),var(--g400));
+height:100%;
 }
 
-.chk{
+.prog-txt{
+font-size:.75rem;
+color:var(--gray);
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(72px,1fr));
+gap:7px;
+margin-bottom:16px;
+}
+
+.tile{
+aspect-ratio:1;
+border-radius:var(--rs);
+background:#fff;
+border:2px solid var(--s200);
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
 cursor:pointer;
-font-size:18px;
+position:relative;
 }
 
-.rank{
-background:#f0fdf4;
-padding:10px;
-margin-bottom:10px;
-border-radius:10px;
+.tile.done-today{
+background:var(--g500);
+border-color:var(--g600);
 }
 
-.hidden{
-display:none;
+.tile .t-num{
+font-family:'Nunito';
+font-weight:800;
+font-size:1.1rem;
+}
+
+.tile .t-name{
+font-size:.55rem;
+color:var(--gray);
+}
+
+.tile .t-streak{
+font-size:.58rem;
+font-weight:700;
+}
+
+.actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+}
+
+.btn{
+border:none;
+border-radius:var(--rs);
+padding:8px 14px;
+cursor:pointer;
+}
+
+.btn-danger{
+background:#fef2f2;
+border:2px solid #fecaca;
+color:#ef4444;
 }
 
 </style>
@@ -88,79 +155,69 @@ display:none;
 
 <body>
 
-<header>
-<h1>学習トラッカー</h1>
-
-<div>
-<button onclick="toggleFilter()">未チェック</button>
-<button onclick="showRanking()">ランキング</button>
-<button onclick="openAddTab()">＋タブ</button>
+<div class="hdr">
+<h1>📚 学習トラッカー</h1>
 </div>
 
-</header>
+<div class="tabs" id="tabsEl"></div>
 
-<div class="tabs" id="tabs"></div>
-
-<div class="container">
-
-<div id="ranking" class="rank hidden"></div>
-
-<table id="table"></table>
-
-</div>
-
-<div id="modal" class="hidden"></div>
+<div class="main" id="mainEl"></div>
 
 <script>
 
-let state={
-tabs:[],
-activeId:null
+let state={tabs:[],activeId:null}
+
+function save(){
+localStorage.setItem("tracker-v4",JSON.stringify(state))
 }
 
-let showUnchecked=false
+function load(){
+const d=localStorage.getItem("tracker-v4")
+if(d) state=JSON.parse(d)
+}
 
 function today(){
 return new Date().toISOString().slice(0,10)
 }
 
-function save(){
-localStorage.setItem("tracker",JSON.stringify(state))
-}
-
-function load(){
-const d=localStorage.getItem("tracker")
-if(d) state=JSON.parse(d)
-}
-
-function activeTab(){
+function getActive(){
 return state.tabs.find(t=>t.id===state.activeId)
 }
 
-function addTab(name,count){
+function streak(rec,td){
 
-const tab={
-id:Date.now().toString(),
-name:name,
-count:count,
-labels:{},
-records:{}
+let c=0
+let d=new Date(td)
+
+if(!rec[td]) d.setDate(d.getDate()-1)
+
+while(true){
+
+const ds=d.toISOString().slice(0,10)
+
+if(rec[ds]){
+c++
+d.setDate(d.getDate()-1)
+}else{
+break
 }
 
-state.tabs.push(tab)
-state.activeId=tab.id
-save()
-render()
+}
+
+return c
+
 }
 
 function renderTabs(){
 
-const el=document.getElementById("tabs")
+const el=document.getElementById("tabsEl")
+
 el.innerHTML=""
 
 state.tabs.forEach(t=>{
 
 const b=document.createElement("button")
+
 b.className="tab"+(t.id===state.activeId?" active":"")
 
 b.textContent=t.name
@@ -176,193 +233,160 @@ el.appendChild(b)
 
 }
 
-function streak(rec){
+function renderMain(){
 
-let s=0
-let d=new Date()
+const tab=getActive()
 
-while(true){
-
-const ds=d.toISOString().slice(0,10)
-
-if(rec && rec[ds]){
-
-s++
-d.setDate(d.getDate()-1)
-
-}else{
-break
-}
-
-}
-
-return s
-}
-
-function renderTable(){
-
-const tab=activeTab()
 if(!tab) return
 
-const tb=document.getElementById("table")
+const td=today()
 
-let html="<tr><th>#</th><th>名前</th><th>今日</th><th>連続</th></tr>"
+const total=tab.count
 
-for(let i=1;i<=tab.count;i++){
+let doneToday=0
+
+let tiles=[]
+
+for(let i=1;i<=total;i++){
 
 const rec=tab.records[i]||{}
-const td=today()
-const checked=rec[td]
+const done=!!rec[td]
 
-if(showUnchecked && checked) continue
+if(done) doneToday++
 
-html+=`
-<tr draggable="true" data-id="${i}">
-<td>${i}</td>
-<td contenteditable oninput="rename(${i},this.innerText)">${tab.labels[i]||""}</td>
-<td class="chk" onclick="toggle(${i})">${checked?"○":""}</td>
-<td>${streak(rec)}</td>
-</tr>
-`
-
-}
-
-tb.innerHTML=html
-
-dragInit()
-
-}
-
-function rename(i,name){
-
-const tab=activeTab()
-tab.labels[i]=name
-save()
-
-}
-
-function toggle(i){
-
-const tab=activeTab()
-const td=today()
-
-if(!tab.records[i]) tab.records[i]={}
-
-tab.records[i][td]=!tab.records[i][td]
-
-save()
-render()
-
-}
-
-function toggleFilter(){
-
-showUnchecked=!showUnchecked
-render()
-
-}
-
-function showRanking(){
-
-const tab=activeTab()
-const el=document.getElementById("ranking")
-
-let arr=[]
-
-for(let i=1;i<=tab.count;i++){
-
-arr.push({
-name:tab.labels[i]||("No."+i),
-s:streak(tab.records[i])
+tiles.push({
+num:i,
+rec:rec,
+done:done,
+label:tab.labels[i]||"",
+streak:streak(rec,td)
 })
 
 }
 
-arr.sort((a,b)=>b.s-a.s)
+tiles.sort((a,b)=>{
 
-let html="<b>連続ランキング</b><br><br>"
+if(a.done===b.done) return a.num-b.num
 
-arr.slice(0,10).forEach((p,i)=>{
-html+=`${i+1}位 ${p.name} (${p.s})<br>`
+return a.done?1:-1
+
 })
 
-el.innerHTML=html
-el.classList.toggle("hidden")
+let tilesHtml=""
 
-}
+tiles.forEach(t=>{
 
-function openAddTab(){
+let cls="tile"
 
-const m=document.getElementById("modal")
+if(t.done) cls+=" done-today"
 
-m.classList.remove("hidden")
+tilesHtml+=`
+<div class="${cls}"
+onclick="toggle(${t.num})">
 
-m.innerHTML=`
-<div style="background:white;padding:20px;max-width:300px;margin:100px auto;border-radius:12px">
+<span class="t-num">${t.num}</span>
 
-<h3>タブ追加</h3>
+${t.label?`<span class="t-name">${t.label}</span>`:""}
 
-<input id="tn" placeholder="名前"><br><br>
-<input id="tc" type="number" value="35"><br><br>
-
-<button onclick="createTab()">作成</button>
-<button onclick="closeModal()">閉じる</button>
+<span class="t-streak">${t.streak?`🔥${t.streak}`:""}</span>
 
 </div>
 `
 
-}
-
-function closeModal(){
-document.getElementById("modal").classList.add("hidden")
-}
-
-function createTab(){
-
-const name=document.getElementById("tn").value
-const count=parseInt(document.getElementById("tc").value)
-
-addTab(name,count)
-closeModal()
-
-}
-
-function dragInit(){
-
-let drag
-
-document.querySelectorAll("tr[draggable]").forEach(row=>{
-
-row.addEventListener("dragstart",()=>{
-drag=row
-row.classList.add("dragging")
 })
 
-row.addEventListener("dragend",()=>{
-row.classList.remove("dragging")
-})
+const pct=total?Math.round(doneToday/total*100):0
+const remain=total-doneToday
 
-row.addEventListener("dragover",e=>{
-e.preventDefault()
+document.getElementById("mainEl").innerHTML=`
 
-const parent=row.parentNode
+<div class="prog-row">
+<div class="prog-wrap">
+<div class="prog-bar" style="width:${pct}%"></div>
+</div>
+<span class="prog-txt">残り ${remain}人</span>
+</div>
 
-if(drag!==row){
+<div class="grid">
+${tilesHtml}
+</div>
 
-parent.insertBefore(drag,row)
+<div class="actions">
+
+<button class="btn" onclick="checkAll()">全員チェック</button>
+
+<button class="btn btn-danger" onclick="resetToday()">今日リセット</button>
+
+<button class="btn btn-danger" onclick="resetAll()">全リセット</button>
+
+</div>
+
+`
 
 }
 
-})
+function toggle(num){
 
-})
+const tab=getActive()
+const td=today()
+
+if(!tab.records[num]) tab.records[num]={}
+
+if(tab.records[num][td])
+delete tab.records[num][td]
+else
+tab.records[num][td]=true
+
+save()
+renderMain()
+
+}
+
+function checkAll(){
+
+const tab=getActive()
+const td=today()
+
+for(let i=1;i<=tab.count;i++){
+
+if(!tab.records[i]) tab.records[i]={}
+
+tab.records[i][td]=true
+
+}
+
+save()
+renderMain()
+
+}
+
+function resetToday(){
+
+const tab=getActive()
+const td=today()
+
+Object.values(tab.records).forEach(r=>delete r[td])
+
+save()
+renderMain()
+
+}
+
+function resetAll(){
+
+const tab=getActive()
+
+tab.records={}
+
+save()
+renderMain()
 
 }
 
 function render(){
 
 renderTabs()
-renderTable()
+renderMain()
 
 }
 
@@ -370,9 +394,25 @@ load()
 
 if(state.tabs.length===0){
 
-addTab("宿題",35)
-addTab("計算ドリル",35)
-addTab("音読",35)
+state.tabs.push({
+id:"1",
+name:"宿題",
+count:35,
+labels:{},
+records:{}
+})
+
+state.tabs.push({
+id:"2",
+name:"音読",
+count:35,
+labels:{},
+records:{}
+})
+
+state.activeId="1"
+
+save()
 
 }
 
