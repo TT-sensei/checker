@@ -169,12 +169,10 @@
 
 <div class="main" id="mainEl"></div>
 
-<!-- tab modal -->
 <div class="overlay" id="tabOverlay" style="display:none" onclick="closeTabModal(event)">
   <div class="modal" id="tabModal"></div>
 </div>
 
-<!-- detail (long press) -->
 <div class="det-overlay" id="detOverlay" style="display:none" onclick="closeDet(event)">
   <div class="det-box" id="detBox"></div>
 </div>
@@ -183,13 +181,17 @@
 
 <script>
 // ── audio ──────────────────────────────────────────────
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// 未対応ブラウザでエラーになり画面が真っ白になるのを防ぐ安全策
+const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+const audioCtx = AudioContextClass ? new AudioContextClass() : null;
 let soundEnabled = localStorage.getItem('sound') !== 'off';
 
-document.addEventListener('click', () => audioCtx.resume(), { once: true });
+document.addEventListener('click', () => {
+  if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+}, { once: true });
 
 function playTapSound(){
-  if(!soundEnabled) return;
+  if(!soundEnabled || !audioCtx) return;
   const ctx = audioCtx;
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
@@ -212,15 +214,29 @@ function toggleSound(){
 }
 
 // ── state ──────────────────────────────────────────────
-// tab: { id, name, count, labels:{num:str}, records:{num:{date:true}} }
 let state = { tabs:[], activeId:null };
 
-function save(){ localStorage.setItem('tracker-v3', JSON.stringify(state)); }
+// 保存・読み込みもエラーで停止しないように安全に
+function save(){ 
+  try{ localStorage.setItem('tracker-v3', JSON.stringify(state)); }catch(e){ console.warn("保存に失敗しました"); } 
+}
 function load(){
-  try{ const r=localStorage.getItem('tracker-v3'); if(r) state=JSON.parse(r); }catch(e){}
+  try{ 
+    const r=localStorage.getItem('tracker-v3'); 
+    if(r) {
+      const parsed = JSON.parse(r);
+      if(parsed && Array.isArray(parsed.tabs)) state = parsed; // データ構造が正しいか確認
+    }
+  }catch(e){}
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
-function today(){ return new Date().toISOString().slice(0,10); }
+
+// 【重要修正】日付をUTCではなく端末のローカルタイム（日本時間など）で取得するように修正
+function formatDate(d){
+  return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+}
+function today(){ return formatDate(new Date()); }
+
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 function toast(msg){
   const el=document.getElementById('toast');
@@ -229,15 +245,12 @@ function toast(msg){
 }
 
 // ── streak calc ────────────────────────────────────────
-// 連続日数: 今日 or 昨日から遡って何日連続か
 function streak(records, todayStr){
-  // records = { "2024-01-01": true, ... }
   let count=0;
   let d=new Date(todayStr);
-  // 今日チェックしてなければ昨日から数える
   if(!records[todayStr]){ d.setDate(d.getDate()-1); }
   while(true){
-    const ds=d.toISOString().slice(0,10);
+    const ds=formatDate(d);
     if(records[ds]){ count++; d.setDate(d.getDate()-1); }
     else break;
   }
@@ -297,12 +310,10 @@ function renderMain(){
     if(isDoneToday) doneToday++;
     if(Object.keys(rec).length>0) hasRecord++;
 
-    // tile class
     let cls='tile';
     if(isDoneToday) cls+=' done-today';
     else if(s>0) cls+=' streak-only';
 
-    // streak text
     let streakTxt='';
     if(isDoneToday && s>0) streakTxt=`🔥${s}日`;
     else if(!isDoneToday && s>0) streakTxt=`⚡${s}日`;
@@ -330,7 +341,7 @@ function renderMain(){
       <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
       <span class="prog-txt">今日 ${pct}%</span>
     </div>
-    <div class="hint">タップ→今日チェック　長押し→記録詳細　ダブルタップ→名前編集</div>
+    <div class="hint" style="font-size:0.75rem; color:var(--gray); margin-bottom:10px; text-align:center;">タップ→今日チェック　長押し→詳細　ダブルタップ→名前編集</div>
     <div class="grid">${tilesHtml}</div>
     <div class="actions">
       <button class="btn" style="background:var(--g100);color:var(--g700);border:2px solid var(--g400);" onclick="checkAll('${tab.id}')">✅ 全員チェック</button>
@@ -350,7 +361,6 @@ function toggleTile(tabId, num){
 }
 
 // ── label edit (double tap) ────────────────────────────
-// dblclick は renderMain 後に付け直す
 document.addEventListener('dblclick', e=>{
   const tile=e.target.closest('.tile');
   if(!tile) return;
@@ -436,7 +446,6 @@ function renderDet(){
   const isDone=!!rec[td];
   const label=tab.labels[num]||`${num}番`;
 
-  // 2ヶ月カレンダー
   const now=new Date();
   let calHtml='';
   for(let mo=1;mo>=0;mo--){
@@ -479,138 +488,11 @@ function toggleDetDay(ds){
   if(rec[ds]) delete rec[ds]; else rec[ds]=true;
   save(); renderDet(); renderMain();
 }
-function toggleDetToday(){
-  toggleDetDay(today());
-}
+function toggleDetToday(){ toggleDetDay(today()); }
 
 // ── tab modals ─────────────────────────────────────────
 function openAddTab(){
   document.getElementById('tabModal').innerHTML=`
     <h3>📂 新しいタブを追加</h3>
     <div class="mrow"><label>タブの名前（例：宿題、計算ドリル、音読）</label>
-      <input class="inp" id="tn" placeholder="タブ名を入力" onkeydown="if(event.key==='Enter')confirmAdd()"></div>
-    <div class="mrow"><label>番号の上限（出席番号の人数など）</label>
-      <input class="inp" id="tc" type="number" min="1" max="300" value="35"></div>
-    <div class="mactions">
-      <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
-      <button class="mbtn mbtn-ok" onclick="confirmAdd()">追加</button>
-    </div>`;
-  document.getElementById('tabOverlay').style.display='flex';
-  setTimeout(()=>document.getElementById('tn')?.focus(),80);
-}
-function confirmAdd(){
-  const name=document.getElementById('tn').value.trim()||'新しいタブ';
-  const count=parseInt(document.getElementById('tc').value)||35;
-  addTab(name,count);
-  closeTabModal();
-  toast(`「${name}」タブを追加しました`);
-}
-
-function openEditTab(tabId){
-  const tab=state.tabs.find(t=>t.id===tabId);
-  document.getElementById('tabModal').innerHTML=`
-    <h3>⚙ タブの設定</h3>
-    <div class="mrow"><label>タブ名</label>
-      <input class="inp" id="en" value="${esc(tab.name)}"></div>
-    <div class="mrow"><label>番号の上限</label>
-      <input class="inp" id="ec" type="number" min="1" max="300" value="${tab.count}"></div>
-    <div class="mactions">
-      <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
-      <button class="mbtn mbtn-ok" onclick="confirmEdit('${tabId}')">保存</button>
-    </div>`;
-  document.getElementById('tabOverlay').style.display='flex';
-}
-function confirmEdit(tabId){
-  const tab=state.tabs.find(t=>t.id===tabId);
-  tab.name=document.getElementById('en').value.trim()||tab.name;
-  tab.count=parseInt(document.getElementById('ec').value)||tab.count;
-  save(); closeTabModal(); render(); toast('設定を保存しました');
-}
-
-function closeTabModal(e){
-  if(e&&e.target!==document.getElementById('tabOverlay')) return;
-  document.getElementById('tabOverlay').style.display='none';
-}
-
-// ── import / export ────────────────────────────────────
-function exportCSV(){
-  const tab = getActive();
-  if(!tab) return alert('書き出すデータがありません');
-
-  const dateSet = new Set();
-  for(let i=1; i<=tab.count; i++){
-    if(tab.records[i]) Object.keys(tab.records[i]).forEach(d => dateSet.add(d));
-  }
-  const dates = Array.from(dateSet).sort();
-
-  const header = ['番号', '名前', '累計達成(日)', '現在の連続(日)', ...dates];
-  let csvContent = header.join(',') + '\n';
-
-  const td = today();
-  for(let i=1; i<=tab.count; i++){
-    const row = [i];
-    let name = tab.labels[i] || '';
-    if(name.includes(',')) name = `"${name}"`;
-    row.push(name);
-    const rec = tab.records[i] || {};
-    row.push(Object.keys(rec).length);
-    row.push(streak(rec, td));
-    dates.forEach(d => row.push(rec[d] ? '○' : ''));
-    csvContent += row.join(',') + '\n';
-  }
-
-  const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
-  const blob = new Blob([bom, csvContent], {type: 'text/csv'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `${tab.name}-${td}.csv`;
-  a.click();
-  toast('CSVを書き出しました');
-}
-
-
-function exportData(){
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}));
-  a.download=`tracker-${today()}.json`; a.click();
-  toast('データを書き出しました');
-}
-function importData(e){
-  const file=e.target.files[0]; if(!file) return;
-  const r=new FileReader();
-  r.onload=ev=>{
-    try{
-      const d=JSON.parse(ev.target.result);
-      if(!d.tabs) throw 0;
-      if(!confirm('現在のデータを上書きしますか？')) return;
-      state=d; if(state.tabs.length) state.activeId=state.tabs[0].id;
-      save(); render(); toast('データを読み込みました');
-    }catch{ alert('ファイルの形式が正しくありません'); }
-  };
-  r.readAsText(file); e.target.value='';
-}
-
-// ── init ───────────────────────────────────────────────
-load();
-document.getElementById('soundBtn').textContent = soundEnabled ? '🔔' : '🔕';
-if(state.tabs.length===0){
-  // デモデータ
-  addTab('宿題',35);
-  const hw=state.tabs[0];
-  const td=today();
-  const yd=new Date(); yd.setDate(yd.getDate()-1); const ys=yd.toISOString().slice(0,10);
-  const yd2=new Date(); yd2.setDate(yd2.getDate()-2); const ys2=yd2.toISOString().slice(0,10);
-  // 数人分デモ記録
-  [1,2,3,5,7,8].forEach(n=>{ hw.records[n]={}; hw.records[n][td]=true; });
-  [1,2,3,5].forEach(n=>{ hw.records[n][ys]=true; hw.records[n][ys2]=true; });
-  hw.labels[1]='田中'; hw.labels[2]='鈴木'; hw.labels[3]='佐藤';
-
-  addTab('計算ドリル',35);
-  addTab('音読',35);
-  state.activeId=state.tabs[0].id;
-  save();
-}
-render();
-</script>
-</body>
-</html>
+      <input class="inp" id="tn" placeholder="タブ名を入力
