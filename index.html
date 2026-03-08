@@ -9,181 +9,78 @@
 
 <style>
 
-:root{
---g100:#dcfce7;
---g400:#4ade80;
---g500:#22c55e;
---g600:#16a34a;
---g700:#15803d;
---g800:#166534;
-
---o100:#fff7ed;
---o400:#fb923c;
---o500:#f97316;
-
---s100:#e8f0e9;
---s200:#c9d9cb;
---s300:#a0b8a3;
-
---cream:#fafaf7;
---gray:#6b7280;
---dark:#1a2e1c;
-
---r:14px;
---rs:8px;
-}
-
-*{box-sizing:border-box;margin:0;padding:0}
-
 body{
 font-family:'Zen Kaku Gothic New',sans-serif;
-background:var(--cream);
-color:var(--dark);
+margin:0;
+background:#fafaf7;
 }
 
-.hdr{
-background:var(--g800);
-color:#fff;
+header{
+background:#166534;
+color:white;
 padding:12px 16px;
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
 
-.hdr h1{
-font-size:1.1rem;
-font-family:'Nunito',sans-serif;
-}
-
-.hbtn{
-background:rgba(255,255,255,.2);
+button{
 border:none;
-color:#fff;
+border-radius:8px;
 padding:6px 10px;
-border-radius:6px;
 cursor:pointer;
-font-size:.8rem;
 }
 
 .tabs{
-background:var(--g800);
 display:flex;
 gap:4px;
-padding:0 10px;
+padding:6px;
+background:#166534;
 }
 
 .tab{
-background:rgba(255,255,255,.2);
-border:none;
-padding:6px 12px;
-color:#fff;
-cursor:pointer;
-border-radius:8px 8px 0 0;
-font-size:.8rem;
+background:#1f7a45;
+color:white;
 }
 
 .tab.active{
-background:var(--cream);
-color:var(--g800);
-font-weight:700;
+background:white;
+color:black;
 }
 
-.tab-add{
-border:2px dashed rgba(255,255,255,.4);
-background:none;
-color:#fff;
-padding:5px 10px;
-cursor:pointer;
-border-radius:8px 8px 0 0;
+.container{
+padding:12px;
 }
 
-.main{
-max-width:800px;
-margin:auto;
-padding:18px;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(auto-fill,minmax(70px,1fr));
-gap:6px;
-}
-
-.tile{
-background:#fff;
-border:2px solid var(--s200);
-border-radius:8px;
-aspect-ratio:1;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
-cursor:pointer;
-}
-
-.tile.done{
-background:var(--g500);
-color:#fff;
-}
-
-.tile.streak{
-background:var(--o100);
-border-color:var(--o400);
-}
-
-.overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,.4);
-display:flex;
-justify-content:center;
-align-items:center;
-}
-
-.modal{
-background:#fff;
-padding:20px;
-border-radius:12px;
-width:300px;
-}
-
-.inp{
+table{
 width:100%;
-padding:8px;
-border:2px solid var(--s200);
-border-radius:6px;
-margin-top:4px;
+border-collapse:collapse;
 }
 
-.mactions{
-margin-top:14px;
-display:flex;
-justify-content:flex-end;
-gap:6px;
+td,th{
+border:1px solid #ddd;
+padding:6px;
+text-align:center;
 }
 
-.mbtn{
-border:none;
-padding:6px 12px;
-border-radius:6px;
+tr.dragging{
+opacity:.5;
+}
+
+.chk{
 cursor:pointer;
+font-size:18px;
 }
 
-.mbtn-ok{
-background:var(--g600);
-color:#fff;
+.rank{
+background:#f0fdf4;
+padding:10px;
+margin-bottom:10px;
+border-radius:10px;
 }
 
-.toast{
-position:fixed;
-bottom:20px;
-left:50%;
-transform:translateX(-50%);
-background:var(--g800);
-color:#fff;
-padding:8px 14px;
-border-radius:20px;
-font-size:.8rem;
+.hidden{
+display:none;
 }
 
 </style>
@@ -191,29 +88,28 @@ font-size:.8rem;
 
 <body>
 
-<div class="hdr">
-<h1>📚 学習トラッカー</h1>
+<header>
+<h1>学習トラッカー</h1>
+
 <div>
-<button class="hbtn" id="soundBtn" onclick="toggleSound()">🔔</button>
-<button class="hbtn" onclick="exportCSV()">CSV</button>
-<button class="hbtn" onclick="exportData()">JSON</button>
-<label class="hbtn">読込
-<input type="file" style="display:none" onchange="importData(event)">
-</label>
-</div>
+<button onclick="toggleFilter()">未チェック</button>
+<button onclick="showRanking()">ランキング</button>
+<button onclick="openAddTab()">＋タブ</button>
 </div>
 
-<div class="tabs" id="tabsEl">
-<button class="tab-add" onclick="openAddTab()">＋</button>
+</header>
+
+<div class="tabs" id="tabs"></div>
+
+<div class="container">
+
+<div id="ranking" class="rank hidden"></div>
+
+<table id="table"></table>
+
 </div>
 
-<div class="main" id="mainEl"></div>
-
-<div class="overlay" id="tabOverlay" style="display:none">
-<div class="modal" id="tabModal"></div>
-</div>
-
-<div class="toast" id="toast" style="display:none"></div>
+<div id="modal" class="hidden"></div>
 
 <script>
 
@@ -222,13 +118,10 @@ tabs:[],
 activeId:null
 }
 
-function uid(){
-return Date.now().toString(36)+Math.random().toString(36).slice(2,5)
-}
+let showUnchecked=false
 
 function today(){
-const d=new Date()
-return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,'0')+"-"+String(d.getDate()).padStart(2,'0')
+return new Date().toISOString().slice(0,10)
 }
 
 function save(){
@@ -240,22 +133,16 @@ const d=localStorage.getItem("tracker")
 if(d) state=JSON.parse(d)
 }
 
-function toast(t){
-const el=document.getElementById("toast")
-el.innerText=t
-el.style.display="block"
-setTimeout(()=>el.style.display="none",2000)
-}
-
-function getActive(){
+function activeTab(){
 return state.tabs.find(t=>t.id===state.activeId)
 }
 
 function addTab(name,count){
+
 const tab={
-id:uid(),
-name,
-count,
+id:Date.now().toString(),
+name:name,
+count:count,
 labels:{},
 records:{}
 }
@@ -266,108 +153,168 @@ save()
 render()
 }
 
-function removeTab(id){
-if(!confirm("削除しますか")) return
-state.tabs=state.tabs.filter(t=>t.id!==id)
-state.activeId=state.tabs[0]?.id||null
-save()
+function renderTabs(){
+
+const el=document.getElementById("tabs")
+el.innerHTML=""
+
+state.tabs.forEach(t=>{
+
+const b=document.createElement("button")
+b.className="tab"+(t.id===state.activeId?" active":"")
+
+b.textContent=t.name
+
+b.onclick=()=>{
+state.activeId=t.id
 render()
 }
 
-function renderTabs(){
+el.appendChild(b)
 
-const el=document.getElementById("tabsEl")
-
-el.querySelectorAll(".tab").forEach(e=>e.remove())
-
-const add=el.querySelector(".tab-add")
-
-state.tabs.forEach(t=>{
-const b=document.createElement("button")
-
-b.className="tab"+(t.id===state.activeId?" active":"")
-
-b.innerHTML=t.name+" ✕"
-
-b.onclick=()=>{state.activeId=t.id;save();render()}
-
-b.ondblclick=()=>removeTab(t.id)
-
-el.insertBefore(b,add)
 })
 
 }
 
-function renderMain(){
+function streak(rec){
 
-const el=document.getElementById("mainEl")
-const tab=getActive()
+let s=0
+let d=new Date()
 
-if(!tab){
-el.innerHTML="タブを作ってください"
-return
+while(true){
+
+const ds=d.toISOString().slice(0,10)
+
+if(rec && rec[ds]){
+
+s++
+d.setDate(d.getDate()-1)
+
+}else{
+break
 }
 
-let html='<div class="grid">'
+}
+
+return s
+}
+
+function renderTable(){
+
+const tab=activeTab()
+if(!tab) return
+
+const tb=document.getElementById("table")
+
+let html="<tr><th>#</th><th>名前</th><th>今日</th><th>連続</th></tr>"
 
 for(let i=1;i<=tab.count;i++){
 
 const rec=tab.records[i]||{}
-const done=rec[today()]
+const td=today()
+const checked=rec[td]
 
-let cls="tile"
-if(done) cls+=" done"
+if(showUnchecked && checked) continue
 
-html+=`<div class="${cls}" onclick="toggleTile('${tab.id}',${i})">${i}</div>`
+html+=`
+<tr draggable="true" data-id="${i}">
+<td>${i}</td>
+<td contenteditable oninput="rename(${i},this.innerText)">${tab.labels[i]||""}</td>
+<td class="chk" onclick="toggle(${i})">${checked?"○":""}</td>
+<td>${streak(rec)}</td>
+</tr>
+`
+
 }
 
-html+='</div>'
+tb.innerHTML=html
 
-el.innerHTML=html
+dragInit()
+
 }
 
-function toggleTile(tabId,num){
+function rename(i,name){
 
-const tab=state.tabs.find(t=>t.id===tabId)
+const tab=activeTab()
+tab.labels[i]=name
+save()
 
-if(!tab.records[num]) tab.records[num]={}
+}
 
-const rec=tab.records[num]
+function toggle(i){
 
-if(rec[today()]) delete rec[today()]
-else rec[today()]=true
+const tab=activeTab()
+const td=today()
+
+if(!tab.records[i]) tab.records[i]={}
+
+tab.records[i][td]=!tab.records[i][td]
 
 save()
-renderMain()
+render()
+
+}
+
+function toggleFilter(){
+
+showUnchecked=!showUnchecked
+render()
+
+}
+
+function showRanking(){
+
+const tab=activeTab()
+const el=document.getElementById("ranking")
+
+let arr=[]
+
+for(let i=1;i<=tab.count;i++){
+
+arr.push({
+name:tab.labels[i]||("No."+i),
+s:streak(tab.records[i])
+})
+
+}
+
+arr.sort((a,b)=>b.s-a.s)
+
+let html="<b>連続ランキング</b><br><br>"
+
+arr.slice(0,10).forEach((p,i)=>{
+html+=`${i+1}位 ${p.name} (${p.s})<br>`
+})
+
+el.innerHTML=html
+el.classList.toggle("hidden")
 
 }
 
 function openAddTab(){
 
-document.getElementById("tabModal").innerHTML=`
+const m=document.getElementById("modal")
 
-<h3>新しいタブ</h3>
+m.classList.remove("hidden")
 
-<label>名前</label>
-<input class="inp" id="tn">
+m.innerHTML=`
+<div style="background:white;padding:20px;max-width:300px;margin:100px auto;border-radius:12px">
 
-<label>人数</label>
-<input class="inp" id="tc" type="number" value="35">
+<h3>タブ追加</h3>
 
-<div class="mactions">
+<input id="tn" placeholder="名前"><br><br>
+<input id="tc" type="number" value="35"><br><br>
 
-<button class="mbtn" onclick="closeModal()">キャンセル</button>
-
-<button class="mbtn mbtn-ok" onclick="createTab()">作成</button>
+<button onclick="createTab()">作成</button>
+<button onclick="closeModal()">閉じる</button>
 
 </div>
 `
 
-document.getElementById("tabOverlay").style.display="flex"
 }
 
 function closeModal(){
-document.getElementById("tabOverlay").style.display="none"
+document.getElementById("modal").classList.add("hidden")
 }
 
 function createTab(){
@@ -375,93 +322,63 @@ function createTab(){
 const name=document.getElementById("tn").value
 const count=parseInt(document.getElementById("tc").value)
 
-if(!name){
-alert("名前を入力")
-return
-}
-
 addTab(name,count)
 closeModal()
 
 }
 
-function exportData(){
+function dragInit(){
 
-const blob=new Blob([JSON.stringify(state)],{type:"application/json"})
+let drag
 
-const a=document.createElement("a")
+document.querySelectorAll("tr[draggable]").forEach(row=>{
 
-a.href=URL.createObjectURL(blob)
+row.addEventListener("dragstart",()=>{
+drag=row
+row.classList.add("dragging")
+})
 
-a.download="tracker.json"
+row.addEventListener("dragend",()=>{
+row.classList.remove("dragging")
+})
 
-a.click()
+row.addEventListener("dragover",e=>{
+e.preventDefault()
 
-}
+const parent=row.parentNode
 
-function importData(e){
+if(drag!==row){
 
-const file=e.target.files[0]
-
-const r=new FileReader()
-
-r.onload=()=>{
-
-state=JSON.parse(r.result)
-
-save()
-
-render()
-
-}
-
-r.readAsText(file)
-
-}
-
-function exportCSV(){
-
-let csv="tab,number,date\n"
-
-state.tabs.forEach(t=>{
-
-for(const n in t.records){
-
-for(const d in t.records[n]){
-
-csv+=`${t.name},${n},${d}\n`
-
-}
+parent.insertBefore(drag,row)
 
 }
 
 })
 
-const blob=new Blob([csv],{type:"text/csv"})
-
-const a=document.createElement("a")
-
-a.href=URL.createObjectURL(blob)
-
-a.download="tracker.csv"
-
-a.click()
+})
 
 }
 
-let sound=true
+function render(){
 
-function toggleSound(){
-
-sound=!sound
-
-document.getElementById("soundBtn").textContent=sound?"🔔":"🔕"
+renderTabs()
+renderTable()
 
 }
 
 load()
+
+if(state.tabs.length===0){
+
+addTab("宿題",35)
+addTab("計算ドリル",35)
+addTab("音読",35)
+
+}
+
 render()
 
 </script>
+
 </body>
 </html>
