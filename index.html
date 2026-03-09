@@ -60,10 +60,6 @@
   .tile .t-num{font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;color:var(--tc1);line-height:1;}
   .tile .t-name{font-size:.55rem;color:var(--gray);max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
   .tile .t-streak{font-size:.58rem;font-weight:700;color:var(--s300);line-height:1;}
-  .tile .t-cal{position:absolute;bottom:3px;right:4px;font-size:.65rem;opacity:0;transition:opacity .15s;cursor:pointer;line-height:1;}
-  .tile:hover .t-cal{opacity:0.6;}
-  .tile.done-today .t-cal{opacity:0.5;}
-  .tile.done-today .t-cal:hover{opacity:1;}
   .tile.done-today{background:var(--tc2);border-color:var(--tc1);box-shadow:0 4px 12px rgba(0,0,0,.2);}
   .tile.done-today .t-num{color:#fff;}
   .tile.done-today .t-name{color:rgba(255,255,255,.85);}
@@ -324,7 +320,6 @@ function renderMain(){
       <span class="t-num">${i}</span>
       ${label?`<span class="t-name">${esc(label)}</span>`:''}
       <span class="t-streak">${streakTxt}</span>
-      <span class="t-cal" onclick="event.stopPropagation();openDet('${tab.id}',${i})">📅</span>
     </div>`).join('');
 
   el.innerHTML=`
@@ -364,17 +359,11 @@ function toggleTile(tabId,num){
   save(); renderMain();
 }
 
-// ── long press → 名前編集 ─────────────────────────────
-function openLabelEdit(tabId,num){
-  const tab=state.tabs.find(t=>t.id===tabId);
-  const cur=tab.labels[num]||'';
-  const val=prompt(`${num}番の名前を入力（空白で削除）:`,cur);
-  if(val===null) return;
-  if(val.trim()==='') delete tab.labels[num]; else tab.labels[num]=val.trim();
-  save(); renderMain();
+// ── long press → 詳細 ────────────────────────────────
+function onLongPress(el){
+  const tabId=el.dataset.tab,num=parseInt(el.dataset.num);
+  if(tabId&&num) openDet(tabId,num);
 }
-
-// ── name bulk editor ──────────────────────────────────
 function openNameEditor(tabId){
   const tab=state.tabs.find(t=>t.id===tabId);
   let rows='';
@@ -429,7 +418,7 @@ let _lpTimer=null,_lpMoved=false,_touchHandled=false;
 const LP=480;
 function onLongPress(el){
   const tabId=el.dataset.tab,num=parseInt(el.dataset.num);
-  if(tabId&&num) openLabelEdit(tabId,num);
+  if(tabId&&num) openDet(tabId,num);
 }
 document.addEventListener('touchstart',e=>{
   const tile=e.target.closest('.tile');
