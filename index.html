@@ -19,14 +19,12 @@
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Zen Kaku Gothic New',sans-serif;background:var(--cream);color:var(--dark);min-height:100vh;}
 
-  /* ── header ── */
   .hdr{background:var(--g800);color:#fff;padding:13px 18px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 10px rgba(22,101,52,.3);}
   .hdr h1{font-family:'Nunito',sans-serif;font-size:1.15rem;font-weight:800;}
   .hdr-btns{display:flex;gap:6px;}
   .hbtn{background:rgba(255,255,255,.15);border:none;color:#fff;border-radius:var(--rs);padding:6px 11px;font-size:.76rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;white-space:nowrap;transition:background .18s;}
   .hbtn:hover{background:rgba(255,255,255,.26);}
 
-  /* ── tabs ── */
   .tabs{background:var(--g800);padding:0 10px;display:flex;align-items:flex-end;gap:3px;overflow-x:auto;scrollbar-width:none;}
   .tabs::-webkit-scrollbar{display:none;}
   .tab{background:rgba(255,255,255,.12);border:none;color:rgba(255,255,255,.7);border-radius:9px 9px 0 0;padding:7px 13px;font-size:.8rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px;transition:all .18s;}
@@ -37,26 +35,21 @@
   .tab-add{background:none;border:2px dashed rgba(255,255,255,.35);color:rgba(255,255,255,.55);border-radius:8px 8px 0 0;padding:6px 12px;font-size:1rem;cursor:pointer;transition:all .18s;}
   .tab-add:hover{border-color:#fff;color:#fff;}
 
-  /* ── main ── */
   .main{padding:18px 15px 60px;max-width:780px;margin:0 auto;}
 
-  /* ── top bar ── */
   .top-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
   .tab-title{font-size:1.05rem;font-weight:700;color:var(--g800);display:flex;align-items:center;gap:8px;}
   .bdg{background:var(--g100);color:var(--g700);border-radius:20px;padding:2px 9px;font-size:.73rem;font-weight:700;}
   .cfg-btn{background:#fff;border:2px solid var(--s200);color:var(--gray);border-radius:var(--rs);padding:5px 12px;font-size:.78rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;transition:all .18s;}
   .cfg-btn:hover{border-color:var(--g400);color:var(--g700);}
 
-  /* ── progress ── */
   .prog-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
   .prog-wrap{flex:1;background:var(--s100);border-radius:6px;height:7px;overflow:hidden;}
   .prog-bar{background:linear-gradient(90deg,var(--g500),var(--g400));height:100%;border-radius:6px;transition:width .4s cubic-bezier(.34,1.56,.64,1);}
   .prog-txt{font-size:.75rem;color:var(--gray);white-space:nowrap;min-width:60px;text-align:right;}
 
-  /* ── grid ── */
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(72px,1fr));gap:7px;margin-bottom:16px;}
 
-  /* ── tile ── */
   .tile{
     aspect-ratio:1;border-radius:var(--rs);
     background:#fff;border:2px solid var(--s200);
@@ -68,39 +61,32 @@
   }
   .tile:hover{transform:scale(1.06);box-shadow:var(--sh-md);}
   .tile:active{transform:scale(.94);}
-
-  /* 未チェック */
   .tile .t-num{font-family:'Nunito',sans-serif;font-weight:800;font-size:1.1rem;color:var(--g700);line-height:1;}
   .tile .t-name{font-size:.55rem;color:var(--gray);max-width:66px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
   .tile .t-streak{font-size:.58rem;font-weight:700;color:var(--s300);line-height:1;}
-
-  /* 今日チェック済み → 緑 */
+  .tile .t-cal{position:absolute;bottom:3px;right:4px;font-size:.65rem;opacity:0;transition:opacity .15s;cursor:pointer;line-height:1;}
+  .tile:hover .t-cal{opacity:0.6;}
+  .tile.done-today .t-cal{opacity:0.5;}
+  .tile.done-today .t-cal:hover{opacity:1;}
   .tile.done-today{background:var(--g500);border-color:var(--g600);box-shadow:0 4px 12px rgba(34,197,94,.35);}
   .tile.done-today .t-num{color:#fff;}
   .tile.done-today .t-name{color:rgba(255,255,255,.85);}
   .tile.done-today .t-streak{color:rgba(255,255,255,.9);}
-
-  /* 連続中だが今日未チェック → オレンジ枠 */
   .tile.streak-only{border-color:var(--o400);background:var(--o100);}
   .tile.streak-only .t-num{color:#c2410c;}
   .tile.streak-only .t-name{color:#9a3412;}
   .tile.streak-only .t-streak{color:var(--o500);}
-
-  /* チェックマーク */
   .tile .t-check{position:absolute;top:3px;right:5px;font-size:.6rem;color:rgba(255,255,255,.8);display:none;}
   .tile.done-today .t-check{display:block;}
 
-  /* ── actions ── */
   .actions{display:flex;gap:8px;flex-wrap:wrap;}
   .btn{border:none;border-radius:var(--rs);padding:8px 14px;font-size:.82rem;font-family:'Zen Kaku Gothic New',sans-serif;cursor:pointer;transition:all .18s;font-weight:500;}
   .btn-danger{background:#fef2f2;border:2px solid #fecaca;color:#ef4444;}
   .btn-danger:hover{background:#fee2e2;}
 
-  /* ── empty ── */
   .empty{text-align:center;padding:60px 20px;color:var(--s300);}
   .empty .ico{font-size:3rem;margin-bottom:12px;}
 
-  /* ── modal ── */
   .overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:200;padding:20px;}
   .modal{background:#fff;border-radius:20px;padding:24px;width:100%;max-width:420px;box-shadow:0 20px 60px rgba(0,0,0,.2);animation:mIn .24s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
   @keyframes mIn{from{opacity:0;transform:scale(.85) translateY(20px);}to{opacity:1;transform:scale(1) translateY(0);}}
@@ -115,7 +101,6 @@
   .mbtn-ok{background:var(--g600);color:#fff;}
   .mbtn-ok:hover{background:var(--g700);}
 
-  /* ── detail (long press) ── */
   .det-overlay{position:fixed;inset:0;background:rgba(0,0,0,.42);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:300;padding:20px;}
   .det-box{background:#fff;border-radius:20px;padding:22px;width:100%;max-width:370px;box-shadow:0 20px 60px rgba(0,0,0,.25);animation:mIn .22s cubic-bezier(.34,1.56,.64,1);max-height:90vh;overflow-y:auto;}
   .det-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
@@ -124,7 +109,6 @@
   .det-close:hover{background:var(--s200);}
   .streak-big{text-align:center;padding:12px 0 16px;font-family:'Nunito',sans-serif;font-size:2.6rem;font-weight:800;color:var(--o500);line-height:1;}
   .streak-big span{display:block;font-size:.8rem;color:var(--gray);font-weight:500;font-family:'Zen Kaku Gothic New',sans-serif;margin-top:4px;}
-  /* calendar */
   .cal-mo{margin-bottom:14px;}
   .cal-mo-label{font-size:.75rem;font-weight:700;color:var(--gray);margin-bottom:5px;}
   .cal-wh{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
@@ -141,7 +125,6 @@
   .det-toggle.not-done{background:var(--s100);color:var(--gray);}
   .det-toggle.not-done:hover{background:var(--s200);}
 
-  /* ── toast ── */
   .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(70px);background:var(--g800);color:#fff;padding:9px 18px;border-radius:30px;font-size:.83rem;font-weight:600;z-index:500;transition:transform .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 6px 20px rgba(22,101,52,.3);}
   .toast.show{transform:translateX(-50%) translateY(0);}
 
@@ -169,12 +152,10 @@
 
 <div class="main" id="mainEl"></div>
 
-<!-- tab modal -->
 <div class="overlay" id="tabOverlay" style="display:none" onclick="closeTabModal(event)">
   <div class="modal" id="tabModal"></div>
 </div>
 
-<!-- detail (long press) -->
 <div class="det-overlay" id="detOverlay" style="display:none" onclick="closeDet(event)">
   <div class="det-box" id="detBox"></div>
 </div>
@@ -182,7 +163,6 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ── audio ──────────────────────────────────────────────
 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 let soundEnabled = localStorage.getItem('sound') !== 'off';
 
@@ -211,8 +191,6 @@ function toggleSound(){
   if(soundEnabled) playTapSound();
 }
 
-// ── state ──────────────────────────────────────────────
-// tab: { id, name, count, labels:{num:str}, records:{num:{date:true}} }
 let state = { tabs:[], activeId:null };
 
 function save(){ localStorage.setItem('tracker-v3', JSON.stringify(state)); }
@@ -228,13 +206,9 @@ function toast(msg){
   setTimeout(()=>el.classList.remove('show'),2100);
 }
 
-// ── streak calc ────────────────────────────────────────
-// 連続日数: 今日 or 昨日から遡って何日連続か
 function streak(records, todayStr){
-  // records = { "2024-01-01": true, ... }
   let count=0;
   let d=new Date(todayStr);
-  // 今日チェックしてなければ昨日から数える
   if(!records[todayStr]){ d.setDate(d.getDate()-1); }
   while(true){
     const ds=d.toISOString().slice(0,10);
@@ -244,11 +218,10 @@ function streak(records, todayStr){
   return count;
 }
 
-// ── tab management ─────────────────────────────────────
 function getActive(){ return state.tabs.find(t=>t.id===state.activeId); }
 
-function addTab(name, count){
-  const tab={id:uid(), name, count:count||35, labels:{}, records:{}};
+function addTab(name, count, mode){
+  const tab={id:uid(), name, count:count||35, mode:mode||'daily', labels:{}, records:{}};
   state.tabs.push(tab);
   state.activeId=tab.id;
   save(); render();
@@ -260,7 +233,6 @@ function removeTab(id){
   save(); render();
 }
 
-// ── render ─────────────────────────────────────────────
 function render(){ renderTabs(); renderMain(); }
 
 function renderTabs(){
@@ -286,36 +258,42 @@ function renderMain(){
 
   const td=today();
   const total=tab.count;
-  let doneToday=0, hasRecord=0;
+  const isManual = tab.mode === 'manual';
+  let doneToday=0;
 
   let tilesHtml='';
   for(let i=1;i<=total;i++){
     const rec=tab.records[i]||{};
     const isDoneToday=!!rec[td];
+    const anyDone = Object.keys(rec).length > 0;
     const s=streak(rec,td);
     const label=tab.labels[i]||'';
     if(isDoneToday) doneToday++;
-    if(Object.keys(rec).length>0) hasRecord++;
 
-    // tile class
     let cls='tile';
-    if(isDoneToday) cls+=' done-today';
-    else if(s>0) cls+=' streak-only';
+    if(isManual){
+      if(anyDone) cls+=' done-today';
+    } else {
+      if(isDoneToday) cls+=' done-today';
+      else if(s>0) cls+=' streak-only';
+    }
 
-    // streak text
     let streakTxt='';
-    if(isDoneToday && s>0) streakTxt=`🔥${s}日`;
-    else if(!isDoneToday && s>0) streakTxt=`⚡${s}日`;
+    if(!isManual){
+      if(isDoneToday && s>0) streakTxt=`🔥${s}日`;
+      else if(!isDoneToday && s>0) streakTxt=`⚡${s}日`;
+    }
 
     tilesHtml+=`
       <div class="${cls}"
         data-tab="${tab.id}" data-num="${i}"
         onclick="toggleTile('${tab.id}',${i})"
-        title="${label||i+'番'}（長押しで記録詳細）">
+        title="${label||i+'番'}（長押しで名前編集）">
         <span class="t-check">✓</span>
         <span class="t-num">${i}</span>
         ${label?`<span class="t-name">${esc(label)}</span>`:''}
         <span class="t-streak">${streakTxt}</span>
+        <span class="t-cal" onclick="event.stopPropagation();openDet('${tab.id}',${i})" title="記録詳細">📅</span>
       </div>`;
   }
 
@@ -323,14 +301,13 @@ function renderMain(){
 
   el.innerHTML=`
     <div class="top-bar">
-      <span class="tab-title">${esc(tab.name)}<span class="bdg">今日 ${doneToday}/${total}</span></span>
+      <span class="tab-title">${esc(tab.name)}<span class="bdg">今日 ${doneToday}/${total}</span>${isManual?'<span class="bdg" style="background:#fef9c3;color:#92400e;">📌 手動</span>':''}</span>
       <button class="cfg-btn" onclick="openEditTab('${tab.id}')">⚙ 設定</button>
     </div>
     <div class="prog-row">
       <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%"></div></div>
       <span class="prog-txt">今日 ${pct}%</span>
     </div>
-    <div class="hint">タップ→今日チェック　長押し→記録詳細　ダブルタップ→名前編集</div>
     <div class="grid">${tilesHtml}</div>
     <div class="actions">
       <button class="btn" style="background:var(--g100);color:var(--g700);border:2px solid var(--g400);" onclick="checkAll('${tab.id}')">✅ 全員チェック</button>
@@ -339,7 +316,6 @@ function renderMain(){
     </div>`;
 }
 
-// ── tile toggle ────────────────────────────────────────
 function toggleTile(tabId, num){
   const tab=state.tabs.find(t=>t.id===tabId);
   if(!tab.records[num]) tab.records[num]={};
@@ -349,22 +325,15 @@ function toggleTile(tabId, num){
   save(); renderMain();
 }
 
-// ── label edit (double tap) ────────────────────────────
-// dblclick は renderMain 後に付け直す
-document.addEventListener('dblclick', e=>{
-  const tile=e.target.closest('.tile');
-  if(!tile) return;
-  const tabId=tile.dataset.tab, num=parseInt(tile.dataset.num);
-  if(!tabId||!num) return;
+function openLabelEdit(tabId, num){
   const tab=state.tabs.find(t=>t.id===tabId);
   const cur=tab.labels[num]||'';
   const val=prompt(`${num}番の名前を入力（空白で削除）:`,cur);
   if(val===null) return;
   if(val.trim()==='') delete tab.labels[num]; else tab.labels[num]=val.trim();
   save(); renderMain();
-});
+}
 
-// ── reset ──────────────────────────────────────────────
 function checkAll(tabId){
   if(!confirm('全員を今日の「完了」にしますか？')) return;
   const tab = state.tabs.find(t => t.id === tabId);
@@ -390,15 +359,19 @@ function resetAll(tabId){
   save(); renderMain(); toast('全記録をリセットしました');
 }
 
-// ── long press → detail ────────────────────────────────
 let _lpTimer=null, _lpMoved=false;
 const LP=480;
+
+function onLongPress(el){
+  const tabId=el.dataset.tab, num=parseInt(el.dataset.num);
+  if(tabId && num) openLabelEdit(tabId, num);
+}
 
 document.addEventListener('touchstart', e=>{
   const tile=e.target.closest('.tile');
   if(!tile) return;
   _lpMoved=false;
-  _lpTimer=setTimeout(()=>{ if(!_lpMoved) openDet(tile.dataset.tab, parseInt(tile.dataset.num)); }, LP);
+  _lpTimer=setTimeout(()=>{ if(!_lpMoved) onLongPress(tile); }, LP);
 },{passive:true});
 document.addEventListener('touchmove', ()=>{ _lpMoved=true; clearTimeout(_lpTimer); },{passive:true});
 document.addEventListener('touchend', ()=>clearTimeout(_lpTimer));
@@ -408,12 +381,11 @@ document.addEventListener('mousedown', e=>{
   const tile=e.target.closest('.tile');
   if(!tile||e.button!==0) return;
   _lpMoved=false;
-  _lpTimer=setTimeout(()=>{ if(!_lpMoved) openDet(tile.dataset.tab, parseInt(tile.dataset.num)); }, LP);
+  _lpTimer=setTimeout(()=>{ if(!_lpMoved) onLongPress(tile); }, LP);
 });
 document.addEventListener('mousemove', ()=>{ _lpMoved=true; clearTimeout(_lpTimer); });
 document.addEventListener('mouseup', ()=>clearTimeout(_lpTimer));
 
-// ── detail popup ───────────────────────────────────────
 let _dTabId=null, _dNum=null;
 
 function openDet(tabId, num){
@@ -436,7 +408,6 @@ function renderDet(){
   const isDone=!!rec[td];
   const label=tab.labels[num]||`${num}番`;
 
-  // 2ヶ月カレンダー
   const now=new Date();
   let calHtml='';
   for(let mo=1;mo>=0;mo--){
@@ -483,7 +454,6 @@ function toggleDetToday(){
   toggleDetDay(today());
 }
 
-// ── tab modals ─────────────────────────────────────────
 function openAddTab(){
   document.getElementById('tabModal').innerHTML=`
     <h3>📂 新しいタブを追加</h3>
@@ -491,6 +461,18 @@ function openAddTab(){
       <input class="inp" id="tn" placeholder="タブ名を入力" onkeydown="if(event.key==='Enter')confirmAdd()"></div>
     <div class="mrow"><label>番号の上限（出席番号の人数など）</label>
       <input class="inp" id="tc" type="number" min="1" max="300" value="35"></div>
+    <div class="mrow"><label>モード</label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+          <input type="radio" name="tmode" value="daily" checked style="margin-top:3px;">
+          <span><strong>毎日型</strong><br><small style="color:var(--gray);">毎朝リセット。宿題・音読など毎日チェックするものに</small></span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+          <input type="radio" name="tmode" value="manual" style="margin-top:3px;">
+          <span><strong>手動型</strong><br><small style="color:var(--gray);">チェックしたら緑のまま残る。提出物・締切管理に</small></span>
+        </label>
+      </div>
+    </div>
     <div class="mactions">
       <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
       <button class="mbtn mbtn-ok" onclick="confirmAdd()">追加</button>
@@ -501,19 +483,33 @@ function openAddTab(){
 function confirmAdd(){
   const name=document.getElementById('tn').value.trim()||'新しいタブ';
   const count=parseInt(document.getElementById('tc').value)||35;
-  addTab(name,count);
+  const mode=document.querySelector('input[name="tmode"]:checked')?.value||'daily';
+  addTab(name,count,mode);
   closeTabModal();
   toast(`「${name}」タブを追加しました`);
 }
 
 function openEditTab(tabId){
   const tab=state.tabs.find(t=>t.id===tabId);
+  const mode=tab.mode||'daily';
   document.getElementById('tabModal').innerHTML=`
     <h3>⚙ タブの設定</h3>
     <div class="mrow"><label>タブ名</label>
       <input class="inp" id="en" value="${esc(tab.name)}"></div>
     <div class="mrow"><label>番号の上限</label>
       <input class="inp" id="ec" type="number" min="1" max="300" value="${tab.count}"></div>
+    <div class="mrow"><label>モード</label>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:4px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+          <input type="radio" name="emode" value="daily" ${mode==='daily'?'checked':''} style="margin-top:3px;">
+          <span><strong>毎日型</strong><br><small style="color:var(--gray);">毎朝リセット。宿題・音読など毎日チェックするものに</small></span>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;">
+          <input type="radio" name="emode" value="manual" ${mode==='manual'?'checked':''} style="margin-top:3px;">
+          <span><strong>手動型</strong><br><small style="color:var(--gray);">チェックしたら緑のまま残る。提出物・締切管理に</small></span>
+        </label>
+      </div>
+    </div>
     <div class="mactions">
       <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
       <button class="mbtn mbtn-ok" onclick="confirmEdit('${tabId}')">保存</button>
@@ -524,6 +520,7 @@ function confirmEdit(tabId){
   const tab=state.tabs.find(t=>t.id===tabId);
   tab.name=document.getElementById('en').value.trim()||tab.name;
   tab.count=parseInt(document.getElementById('ec').value)||tab.count;
+  tab.mode=document.querySelector('input[name="emode"]:checked')?.value||'daily';
   save(); closeTabModal(); render(); toast('設定を保存しました');
 }
 
@@ -532,20 +529,16 @@ function closeTabModal(e){
   document.getElementById('tabOverlay').style.display='none';
 }
 
-// ── import / export ────────────────────────────────────
 function exportCSV(){
   const tab = getActive();
   if(!tab) return alert('書き出すデータがありません');
-
   const dateSet = new Set();
   for(let i=1; i<=tab.count; i++){
     if(tab.records[i]) Object.keys(tab.records[i]).forEach(d => dateSet.add(d));
   }
   const dates = Array.from(dateSet).sort();
-
   const header = ['番号', '名前', '累計達成(日)', '現在の連続(日)', ...dates];
   let csvContent = header.join(',') + '\n';
-
   const td = today();
   for(let i=1; i<=tab.count; i++){
     const row = [i];
@@ -558,7 +551,6 @@ function exportCSV(){
     dates.forEach(d => row.push(rec[d] ? '○' : ''));
     csvContent += row.join(',') + '\n';
   }
-
   const bom = new Uint8Array([0xEF, 0xBB, 0xBF]);
   const blob = new Blob([bom, csvContent], {type: 'text/csv'});
   const a = document.createElement('a');
@@ -567,7 +559,6 @@ function exportCSV(){
   a.click();
   toast('CSVを書き出しました');
 }
-
 
 function exportData(){
   const a=document.createElement('a');
@@ -590,21 +581,17 @@ function importData(e){
   r.readAsText(file); e.target.value='';
 }
 
-// ── init ───────────────────────────────────────────────
 load();
 document.getElementById('soundBtn').textContent = soundEnabled ? '🔔' : '🔕';
 if(state.tabs.length===0){
-  // デモデータ
   addTab('宿題',35);
   const hw=state.tabs[0];
   const td=today();
   const yd=new Date(); yd.setDate(yd.getDate()-1); const ys=yd.toISOString().slice(0,10);
   const yd2=new Date(); yd2.setDate(yd2.getDate()-2); const ys2=yd2.toISOString().slice(0,10);
-  // 数人分デモ記録
   [1,2,3,5,7,8].forEach(n=>{ hw.records[n]={}; hw.records[n][td]=true; });
   [1,2,3,5].forEach(n=>{ hw.records[n][ys]=true; hw.records[n][ys2]=true; });
   hw.labels[1]='田中'; hw.labels[2]='鈴木'; hw.labels[3]='佐藤';
-
   addTab('計算ドリル',35);
   addTab('音読',35);
   state.activeId=state.tabs[0].id;
