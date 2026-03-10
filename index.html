@@ -460,7 +460,7 @@ function renderMain(){
       <div class="prog-wrap"><div class="prog-bar" style="width:${pct}%;background:linear-gradient(90deg,${c.done},${c.border});"></div></div>
       <span class="prog-txt">今日 ${pct}%</span>
     </div>
-    <div class="hint">タップ→今日チェック　長押し→名前編集　📅マークで記録詳細</div>
+    <div class="hint">タップ→今日チェック　長押し→記録詳細　名前は⚙設定から変更</div>
     <div class="grid">${tilesHtml}</div>
     <div class="actions">
       <button class="btn" style="background:${c.light};color:${c.dark};border:2px solid ${c.border};" onclick="checkAll('${tab.id}')">✅ 全員チェック</button>
@@ -476,17 +476,6 @@ function toggleTile(tabId, num){
   const td=today();
   if(tab.records[num][td]) delete tab.records[num][td];
   else { tab.records[num][td]=true; playTapSound(); }
-  save(); renderMain();
-}
-
-// ── label edit (long press) ────────────────────────────
-// 長押し判定と名前編集を兼用。タイルのdata-num属性で判断
-function openLabelEdit(tabId, num){
-  const tab=state.tabs.find(t=>t.id===tabId);
-  const cur=tab.labels[num]||'';
-  const val=prompt(`${num}番の名前を入力（空白で削除）:`,cur);
-  if(val===null) return;
-  if(val.trim()==='') delete tab.labels[num]; else tab.labels[num]=val.trim();
   save(); renderMain();
 }
 
@@ -522,7 +511,7 @@ const LP=480;
 
 function onLongPress(el){
   const tabId=el.dataset.tab, num=parseInt(el.dataset.num);
-  if(tabId && num) openLabelEdit(tabId, num);
+  if(tabId && num) openDet(tabId, num);
 }
 
 document.addEventListener('touchstart', e=>{
@@ -683,11 +672,21 @@ function openEditTab(tabId){
     ${Object.keys(state.roster).length ? `
     <div class="mrow">
       <button class="mbtn" style="width:100%;background:var(--g100);color:var(--g700);border:2px solid var(--g400);" onclick="applyRosterToTab('${tabId}')">👥 名簿をこのタブに適用</button>
-      <small style="color:var(--gray);margin-top:4px;display:block;">名簿登録済み ${Object.keys(state.roster).length}人 ／ 個別に変更した名前は長押しで編集できます</small>
+      <small style="color:var(--gray);margin-top:4px;display:block;">名簿登録済み ${Object.keys(state.roster).length}人 ／ 適用後に下の表で個別変更できます</small>
     </div>` : `
     <div class="mrow">
       <small style="color:var(--gray);">💡 ヘッダーの「👥 名簿」からクラス名簿を登録すると、ここから一括適用できます</small>
     </div>`}
+    <div class="mrow"><label>名前の個別変更</label>
+      <div style="max-height:200px;overflow-y:auto;border:2px solid var(--s200);border-radius:var(--rs);">
+        <table class="roster-table">
+          <thead><tr><th>番号</th><th>名前</th></tr></thead>
+          <tbody>${Array.from({length:tab.count},(_,i)=>i+1).map(n=>`
+            <tr><td>${n}</td><td><input class="roster-inp lbl-inp" data-num="${n}" value="${esc(tab.labels[n]||'')}" placeholder="（未設定）" maxlength="20"></td></tr>
+          `).join('')}</tbody>
+        </table>
+      </div>
+    </div>
     <div class="mactions">
       <button class="mbtn mbtn-cancel" onclick="closeTabModal()">キャンセル</button>
       <button class="mbtn mbtn-ok" onclick="confirmEdit('${tabId}')">保存</button>
@@ -700,6 +699,12 @@ function confirmEdit(tabId){
   tab.count=parseInt(document.getElementById('ec').value)||tab.count;
   tab.mode=document.querySelector('input[name="emode"]:checked')?.value||'daily';
   tab.color=document.querySelector('.swatch.selected')?.dataset.cid||tab.color||'green';
+  // 個別名前を保存
+  document.querySelectorAll('.lbl-inp').forEach(inp=>{
+    const num=parseInt(inp.dataset.num);
+    const val=inp.value.trim();
+    if(val) tab.labels[num]=val; else delete tab.labels[num];
+  });
   save(); closeTabModal(); render(); toast('設定を保存しました');
 }
 
