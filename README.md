@@ -38,7 +38,7 @@ runTrackerTests()
 Node.jsがある場合は、フォルダー内で次を実行できます。
 
 ```bash
-node tests/run-tests.cjs
+node run-tests.cjs
 ```
 
 テストは専用データだけを使用し、本番のlocalStorageを変更しません。
@@ -49,13 +49,11 @@ node tests/run-tests.cjs
 learning-tracker/
 ├─ index.html
 ├─ styles.css
+├─ core.js
+├─ app.js
+├─ run-tests.cjs
 ├─ README.md
-├─ package.json
-├─ js/
-│  ├─ core.js
-│  └─ app.js
-└─ tests/
-   └─ run-tests.cjs
+└─ package.json
 ```
 
 ## 対応環境

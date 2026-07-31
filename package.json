@@ -4,6 +4,6 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
-    "test": "node tests/run-tests.cjs"
+    "test": "node run-tests.cjs"
   }
 }
