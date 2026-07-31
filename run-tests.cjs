@@ -1,6 +1,6 @@
 "use strict";
 
-const core = require("../js/core.js");
+const core = require("./core.js");
 const result = core.runTrackerTests();
 
 if (result.failed > 0) {
