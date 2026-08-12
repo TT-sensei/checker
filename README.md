@@ -59,3 +59,7 @@ learning-tracker/
 ## 対応環境
 
 現在のChrome、Edge、Safariを推奨します。パソコンとタブレットの横画面・縦画面に対応しています。
+
+## 公開ページ
+
+[GitHub Pagesで開く](https://tt-sensei.github.io/checker/)
