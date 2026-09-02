@@ -161,6 +161,21 @@
     return originalRemoveItem(key);
   };
 
+  const style = document.createElement("style");
+  style.textContent = `
+    #class-switcher { display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-top:3px; }
+    #class-switcher select, #class-switcher button { font:inherit; border:1px solid rgba(0,0,0,.18); border-radius:8px; background:#fff; color:inherit; padding:5px 8px; }
+    #class-switcher select { max-width:145px; font-weight:700; }
+    #class-switcher button { cursor:pointer; font-size:.82em; }
+    #class-switcher button:hover { filter:brightness(.97); }
+    @media (max-width:640px) {
+      #class-switcher { gap:4px; }
+      #class-switcher select { max-width:120px; }
+      #class-switcher button { padding:4px 6px; font-size:.75em; }
+    }
+  `;
+  document.head.appendChild(style);
+
   // 現在の学級名・データを起動時に最新状態へ同期。
   syncCurrentToActive();
   writeJson(ACTIVE_KEY, activeId);
