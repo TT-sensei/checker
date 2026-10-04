@@ -473,6 +473,7 @@
             <input class="date-input" type="date" value="${esc(ui.dailyDate)}" max="${today()}" data-action="daily-date" aria-label="表示する日付">
             <button class="date-button" type="button" data-action="next-date" aria-label="翌日へ" ${ui.dailyDate >= today() ? "disabled" : ""}>翌日 →</button>
             <button class="date-button" type="button" data-action="today">今日</button>
+            <button class="button small" type="button" data-action="set-no-assignment-date">全員免除（出題なし）</button>
           </div>
           <div class="toolbar-group">
             <input class="search-input" type="search" value="${esc(ui.search)}" placeholder="番号・名前で検索" data-action="search" aria-label="番号または名前で検索">
@@ -933,7 +934,7 @@
       color: COLORS[0],
       note: "",
       schedule: type === "daily"
-        ? { startDate: today(), pattern: "weekday", days: [] }
+        ? { startDate: today(), pattern: "weekday", days: [], excludedDates: [...(state.settings.noAssignmentDates || [])] }
         : { registeredDate: today(), dueDate: today(), dueTime: "16:00" }
     };
     openModal(`
@@ -974,7 +975,7 @@
     function scheduleFields() {
       const currentType = editing || forcedType ? type : typeSelect.value;
       if (currentType === "daily") {
-        const schedule = data.type === "daily" ? data.schedule : { startDate: today(), pattern: "weekday", days: [] };
+        const schedule = data.type === "daily" ? data.schedule : { startDate: today(), pattern: "weekday", days: [], excludedDates: [...(state.settings.noAssignmentDates || [])] };
         scheduleHolder.innerHTML = `
           <div class="form-grid">
             <div class="form-field">
@@ -1032,7 +1033,8 @@
         ? {
             startDate: formData.get("startDate"),
             pattern: formData.get("pattern"),
-            days: formData.getAll("days").map(Number)
+            days: formData.getAll("days").map(Number),
+            excludedDates: item?.schedule?.excludedDates || [...(state.settings.noAssignmentDates || [])]
           }
         : {
             registeredDate: formData.get("registeredDate"),
@@ -1372,6 +1374,29 @@
     } else if (action === "today") {
       ui.dailyDate = today();
       render();
+    } else if (action === "set-no-assignment-date") {
+      const dateKey = ui.dailyDate;
+      const label = dateLabel(dateKey);
+      confirmModal(
+        "全員免除にする",
+        `${label}を「休日と同じ扱い」にします。この日の毎日型提出物は出題・集計の対象外になります。`,
+        () => {
+          state.settings.noAssignmentDates ||= [];
+          if (!state.settings.noAssignmentDates.includes(dateKey)) {
+            state.settings.noAssignmentDates.push(dateKey);
+          }
+          state.items.filter((entry) => entry.type === "daily").forEach((entry) => {
+            entry.schedule.excludedDates ||= [];
+            if (!entry.schedule.excludedDates.includes(dateKey)) {
+              entry.schedule.excludedDates.push(dateKey);
+            }
+          });
+          saveState("");
+          render();
+          toast(`${label}を全員免除にしました。`);
+        },
+        "全員免除にする"
+      );
     } else if (action === "clear-selection") {
       ui.selectedStudents.clear();
       render();
