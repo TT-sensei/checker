@@ -89,8 +89,9 @@
     if (from > to) return [];
 
     const dates = [];
+    const excludedDates = new Set((item.schedule?.excludedDates || []).filter(isDateKey));
     for (let cursor = from; cursor <= to; cursor = addDaysToDateKey(cursor, 1)) {
-      if (matchesSchedule(item, cursor)) dates.push(cursor);
+      if (matchesSchedule(item, cursor) && !excludedDates.has(cursor)) dates.push(cursor);
     }
     return dates;
   }
@@ -218,7 +219,8 @@
         lastSavedAt: "",
         selectedItemId: "",
         selectedDailyDate: getTodayJST(),
-        theme: "green"
+        theme: "green",
+        noAssignmentDates: []
       },
       classInfo: {
         className: "",
