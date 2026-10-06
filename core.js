@@ -219,8 +219,7 @@
         lastSavedAt: "",
         selectedItemId: "",
         selectedDailyDate: getTodayJST(),
-        theme: "green",
-        noAssignmentDates: []
+        theme: "green"
       },
       classInfo: {
         className: "",
