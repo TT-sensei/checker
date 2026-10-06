@@ -975,7 +975,7 @@
     function scheduleFields() {
       const currentType = editing || forcedType ? type : typeSelect.value;
       if (currentType === "daily") {
-        const schedule = data.type === "daily" ? data.schedule : { startDate: today(), pattern: "weekday", days: [], excludedDates: [...(state.settings.noAssignmentDates || [])] };
+        const schedule = data.type === "daily" ? data.schedule : { startDate: today(), pattern: "weekday", days: [], excludedDates: [] };
         scheduleHolder.innerHTML = `
           <div class="form-grid">
             <div class="form-field">
