@@ -438,7 +438,6 @@
       return;
     }
     if (ui.dailyDate > today()) ui.dailyDate = today();
-    const noAssignmentDate = (state.settings.noAssignmentDates || []).includes(ui.dailyDate);
     const target = C.getTargetDates(item, ui.dailyDate, ui.dailyDate).length > 0;
     const students = activeStudents();
     const statuses = target ? students.map((student) => C.getDailyStatus(state, item.id, student.id, ui.dailyDate)) : [];
@@ -474,7 +473,7 @@
             <input class="date-input" type="date" value="${esc(ui.dailyDate)}" max="${today()}" data-action="daily-date" aria-label="表示する日付">
             <button class="date-button" type="button" data-action="next-date" aria-label="翌日へ" ${ui.dailyDate >= today() ? "disabled" : ""}>翌日 →</button>
             <button class="date-button" type="button" data-action="today">今日</button>
-            <button class="button small" type="button" data-action="set-no-assignment-date">${noAssignmentDate ? "全員免除を解除" : "全員免除（出題なし）"}</button>
+            <button class="button small" type="button" data-action="toggle-item-excluded-date">${(item.schedule.excludedDates || []).includes(ui.dailyDate) ? "この日を免除解除" : "この日を免除（出題なし）"}</button>
           </div>
           <div class="toolbar-group">
             <input class="search-input" type="search" value="${esc(ui.search)}" placeholder="番号・名前で検索" data-action="search" aria-label="番号または名前で検索">
@@ -935,7 +934,7 @@
       color: COLORS[0],
       note: "",
       schedule: type === "daily"
-        ? { startDate: today(), pattern: "weekday", days: [], excludedDates: [...(state.settings.noAssignmentDates || [])] }
+        ? { startDate: today(), pattern: "weekday", days: [], excludedDates: [] }
         : { registeredDate: today(), dueDate: today(), dueTime: "16:00" }
     };
     openModal(`
@@ -1035,7 +1034,7 @@
             startDate: formData.get("startDate"),
             pattern: formData.get("pattern"),
             days: formData.getAll("days").map(Number),
-            excludedDates: item?.schedule?.excludedDates || [...(state.settings.noAssignmentDates || [])]
+            excludedDates: item?.schedule?.excludedDates || []
           }
         : {
             registeredDate: formData.get("registeredDate"),
@@ -1375,35 +1374,32 @@
     } else if (action === "today") {
       ui.dailyDate = today();
       render();
-    } else if (action === "set-no-assignment-date") {
+    } else if (action === "toggle-item-excluded-date") {
+      const item = selectedItem("daily");
       const dateKey = ui.dailyDate;
-      const label = dateLabel(dateKey);
-      const isExcluded = (state.settings.noAssignmentDates || []).includes(dateKey);
+      if (!item || !C.isDateKey(dateKey)) return;
+      item.schedule.excludedDates ||= [];
+      const isExcluded = item.schedule.excludedDates.includes(dateKey);
+      const label = dateLabel(dateKey, false);
       confirmModal(
-        isExcluded ? "全員免除を解除" : "全員免除にする",
+        isExcluded ? "免除を解除" : "この日を免除",
         isExcluded
-          ? `${label}を通常の提出日に戻します。`
-          : `${label}を「休日と同じ扱い」にします。この日の毎日型提出物は出題・集計の対象外になります。`,
+          ? label + "の「" + esc(item.name) + "」を通常の提出日に戻します。"
+          : label + "の「" + esc(item.name) + "」を出題なしにします。この提出物だけ、この日の記録・集計の対象外になります。",
         () => {
-          state.settings.noAssignmentDates ||= [];
+          item.schedule.excludedDates ||= [];
           if (isExcluded) {
-            state.settings.noAssignmentDates = state.settings.noAssignmentDates.filter((entry) => entry !== dateKey);
-          } else {
-            state.settings.noAssignmentDates.push(dateKey);
+            item.schedule.excludedDates = item.schedule.excludedDates.filter((entry) => entry !== dateKey);
+          } else if (!item.schedule.excludedDates.includes(dateKey)) {
+            item.schedule.excludedDates.push(dateKey);
           }
-          state.items.filter((entry) => entry.type === "daily").forEach((entry) => {
-            entry.schedule.excludedDates ||= [];
-            if (isExcluded) {
-              entry.schedule.excludedDates = entry.schedule.excludedDates.filter((entry) => entry !== dateKey);
-            } else if (!entry.schedule.excludedDates.includes(dateKey)) {
-              entry.schedule.excludedDates.push(dateKey);
-            }
-          });
           saveState("");
           render();
-          toast(isExcluded ? `${label}を通常の提出日に戻しました。` : `${label}を全員免除にしました。`);
+          toast(isExcluded
+            ? label + "の「" + esc(item.name) + "」の免除を解除しました。"
+            : label + "の「" + esc(item.name) + "」を出題なしにしました。");
         },
-        isExcluded ? "解除する" : "全員免除にする"
+        isExcluded ? "解除する" : "この提出物だけ免除"
       );
     } else if (action === "clear-selection") {
       ui.selectedStudents.clear();
