@@ -46,13 +46,15 @@ node run-tests.cjs
 ## ファイル構成
 
 ```text
-learning-tracker/
+checker/
 ├─ index.html
 ├─ styles.css
 ├─ core.js
 ├─ app.js
+├─ color-fix.js
 ├─ run-tests.cjs
 ├─ README.md
+├─ LICENSE
 └─ package.json
 ```
 
