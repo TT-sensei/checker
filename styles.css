@@ -480,6 +480,7 @@ button.summary-card {
 }
 
 .progress-fill {
+  display: block;
   height: 100%;
   background: var(--blue-600);
   border-radius: inherit;
